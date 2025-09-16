@@ -1,0 +1,64 @@
+---
+description: Enforce awaiting Next.js dynamic route params (Next 15+ app router). Apply when editing dynamic segment files (pages, route handlers, generateMetadata/generateStaticParams) so params is typed as Promise and awaited before use.
+alwaysApply: false
+---
+Rule
+- In app router files for dynamic routes, `params` is async. Always await it before using.
+- Function signatures must reflect this by making the component/handler `async` and typing `params` as a Promise.
+
+Do
+```ts
+type PageProps = { params: Promise<{ id: string }> }
+
+export default async function Page({ params }: PageProps) {
+	const { id } = await params
+	// ...
+}
+```
+
+Don’t
+```ts
+type PageProps = { params: { id: string } }
+export default function Page({ params }: PageProps) {
+	const { id } = params // ❌ params must be awaited
+}
+```
+
+Also applies to
+- `generateMetadata`, `generateStaticParams`, and Route Handlers in dynamic segments
+
+Checklist
+- Component/handler is `async`
+- `params` type is `Promise<...>`
+- Always `await params` before destructuring
+Next.js dynamic route params (Next 15+)
+
+Rule
+- In app router files for dynamic routes, `params` is async. Always await it before using.
+- Function signatures must reflect this by making the component/handler `async` and typing `params` as a Promise.
+
+Do
+```ts
+type PageProps = { params: Promise<{ id: string }> }
+
+export default async function Page({ params }: PageProps) {
+	const { id } = await params
+	// ...
+}
+```
+
+Don’t
+```ts
+type PageProps = { params: { id: string } }
+export default function Page({ params }: PageProps) {
+	const { id } = params // ❌ params must be awaited
+}
+```
+
+Also applies to
+- `generateMetadata`, `generateStaticParams`, and Route Handlers in dynamic segments
+
+Checklist
+- Component/handler is `async`
+- `params` type is `Promise<...>`
+- Always `await params` before destructuring

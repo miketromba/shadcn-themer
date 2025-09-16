@@ -1,0 +1,32 @@
+---
+description: Review this rule when making any schema changes to our database, running any database migrations, or dealing with database-related errors like RLS issues, adding RLS policies, etc.
+alwaysApply: false
+---
+
+We use drizzle-kit and drizzle's schema system for managing our PG database on Supabase.
+
+## Making schema changes
+
+When altering our schema within the codebase in order to implement a feature, you can then continue working within the codebase since everything will be typesafe according to our schema definition.
+
+## Applying schema changes (migrating)
+
+IMPORTANT: Always ask the user before doing this (or wait for the user to explicitly instruct you to run the migration(s))
+
+We NEVER use drizzle push for this. Instead we use the drizzle migration system.
+
+We have scripts in our package.json for this:
+
+1) Run `pnpm db:generate` - this generates the migration file(s) and plan automatically based on the delta of our schema
+
+2) Run `pnpm db:migrate` - this pushes our schema changes to the live database
+
+
+## Custom migrations
+
+If you need to run a custom migration, e.g. for adding RLS policies or performing certain data migrations that cannot be automatically created via db:generate, you may use the command `pnpm db:generate:custom` which will create a new migration sql file and log it's name/location to the command line. You can then open that file and write your migration SQL in there. When you are finished, you can run the migration with the same migrate command `pnpm db:migrate`.
+
+## RLS / Authorization
+
+- After creating any new tables with automatic migrations, make sure to add another custom migration right after and enable row level security for that table.
+- Only enable RLS, never write any policies - we don't need them since we use an admin connection for all writes and perform our own authorization at the application-level with auth / ownership checks as needed.

@@ -1,0 +1,9 @@
+---
+description: Use these deps while working in our codebase.
+globs: *.tsx
+alwaysApply: true
+---
+
+- ShadCN: Always use shadcn components where possible when working on the user interface (located in src/components/ui)
+- Lucide Icons: Also we use lucide icons in our project
+- React Query: Use this for all queries and mutations and remember to properly invalidate
