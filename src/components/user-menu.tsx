@@ -94,13 +94,13 @@ export function UserMenu() {
 				<button
 					className={cn(
 						'flex items-center gap-2 rounded-md p-1.5 transition-colors hover:bg-muted',
-						'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background'
+						'focus-visible:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:ring-offset-0 group'
 					)}
 					aria-label="Open user menu"
 				>
 					<Avatar className="size-7">
 						<AvatarImage alt={displayName} />
-						<AvatarFallback className="text-[10px]">
+						<AvatarFallback className="text-[10px] group-hover:bg-accent transition-colors">
 							{initials}
 						</AvatarFallback>
 					</Avatar>
