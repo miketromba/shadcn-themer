@@ -1,10 +1,11 @@
 'use client'
 
+import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-export function SiteLogo() {
+export function SiteLogo({ className }: { className?: string }) {
 	return (
-		<Link href="/" className="group">
+		<Link href="/" className={cn('group', className)}>
 			<span
 				className="font-semibold text-base font-mono transition-colors duration-200 relative"
 				style={{ letterSpacing: '0.04em', color: 'white' }}

@@ -12,11 +12,15 @@ type ThemeContextValue = {
 		value: string,
 		options?: { mode?: 'light' | 'dark' }
 	) => void
+	previewMode: 'light' | 'dark'
+	setPreviewMode: (mode: 'light' | 'dark') => void
 }
 
 const ThemeDataContext = React.createContext<ThemeContextValue>({
 	theme: getDefaultShadcnTheme(),
-	updateVar: () => {}
+	updateVar: () => {},
+	previewMode: 'light',
+	setPreviewMode: () => {}
 })
 
 export function ThemeDataProvider({
@@ -30,6 +34,9 @@ export function ThemeDataProvider({
 
 	const [theme, setTheme] = React.useState<ShadcnTheme>(
 		getDefaultShadcnTheme()
+	)
+	const [previewMode, setPreviewMode] = React.useState<'light' | 'dark'>(
+		'light'
 	)
 
 	React.useEffect(() => {
@@ -57,8 +64,8 @@ export function ThemeDataProvider({
 	)
 
 	const ctx: ThemeContextValue = React.useMemo(
-		() => ({ theme, updateVar }),
-		[theme, updateVar]
+		() => ({ theme, updateVar, previewMode, setPreviewMode }),
+		[theme, updateVar, previewMode]
 	)
 
 	return (

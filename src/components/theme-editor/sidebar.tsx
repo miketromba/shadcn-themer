@@ -15,7 +15,8 @@ import {
 	parseOKLCH,
 	toOKLCHString
 } from '@/components/theme-editor/oklch-color-picker'
-import { useTheme as useSystemTheme } from 'next-themes'
+import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Sun, Moon } from 'lucide-react'
 
 const GROUPS: Array<{ id: string; title: string; keys: ColorKey[] }> = [
 	{
@@ -115,14 +116,7 @@ function ColorRow({
 }
 
 export function ThemeEditorSidebar() {
-	const { theme, updateVar } = useThemeData()
-	const { resolvedTheme } = useSystemTheme()
-
-	const [mounted, setMounted] = React.useState(false)
-	React.useEffect(() => setMounted(true), [])
-
-	const mode: 'light' | 'dark' =
-		mounted && resolvedTheme === 'dark' ? 'dark' : 'light'
+	const { theme, updateVar, previewMode, setPreviewMode } = useThemeData()
 
 	const [editingKey, setEditingKey] = React.useState<ColorKey | null>(null)
 
@@ -130,7 +124,7 @@ export function ThemeEditorSidebar() {
 
 	return (
 		<ScrollArea className="h-full" tableFix>
-			<div className="p-3">
+			<div className="p-3 space-y-3">
 				<Accordion type="multiple" defaultValue={GROUPS.map(g => g.id)}>
 					{GROUPS.map(group => (
 						<AccordionItem
@@ -147,12 +141,13 @@ export function ThemeEditorSidebar() {
 										g => g.id === group.id
 									)!.keys.map(k => {
 										const stored =
-											(theme[mode]?.[k] as
+											(theme[previewMode]?.[k] as
 												| string
 												| undefined) || ''
 										const fallback =
-											(defaults[mode]?.[k] as string) ||
-											''
+											(defaults[previewMode]?.[
+												k
+											] as string) || ''
 										const displayValue = stored || fallback
 										return (
 											<React.Fragment key={k}>
@@ -187,7 +182,9 @@ export function ThemeEditorSidebar() {
 																updateVar(
 																	k,
 																	next,
-																	{ mode }
+																	{
+																		mode: previewMode
+																	}
 																)
 															}}
 														/>

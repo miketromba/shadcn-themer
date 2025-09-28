@@ -1,7 +1,6 @@
 'use client'
 
 import * as React from 'react'
-import { useTheme } from 'next-themes'
 import type { ShadcnTheme } from '@/lib/shadcnTheme'
 import { useThemeData } from '@/components/providers/theme-data-provider'
 
@@ -26,20 +25,18 @@ export function ThemedScope({
 	children: React.ReactNode
 	theme?: ShadcnTheme
 }) {
-	const { theme: ctxTheme } = useThemeData()
+	const { theme: ctxTheme, previewMode } = useThemeData()
 	const effectiveTheme = theme ?? ctxTheme
-	const { resolvedTheme } = useTheme()
 
-	const [mounted, setMounted] = React.useState(false)
-	React.useEffect(() => setMounted(true), [])
-
-	const isDark = resolvedTheme === 'dark'
-	const applied = mounted
-		? isDark
-			? effectiveTheme?.dark
-			: effectiveTheme?.light
-		: effectiveTheme?.light
+	// Avoid SSR mismatch: default previewMode is light on first render
+	const applied =
+		previewMode === 'dark' ? effectiveTheme?.dark : effectiveTheme?.light
 	const style = React.useMemo(() => varsToInlineStyle(applied), [applied])
+	const wrapperClass = previewMode === 'dark' ? 'dark' : undefined
 
-	return <div style={style}>{children}</div>
+	return (
+		<div className={wrapperClass} style={style}>
+			{children}
+		</div>
+	)
 }
