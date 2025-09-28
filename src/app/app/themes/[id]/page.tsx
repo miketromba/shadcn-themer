@@ -7,5 +7,9 @@ export default async function ThemePage({
 }) {
 	const { id } = await params
 
-	return <ExamplesSwitcher />
+	return (
+		<div className="px-6 py-3 bg-background">
+			<ExamplesSwitcher />
+		</div>
+	)
 }

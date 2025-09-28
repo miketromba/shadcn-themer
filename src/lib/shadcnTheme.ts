@@ -45,6 +45,8 @@ export const zShadcnTheme = z
 	.strict()
 
 export type ShadcnTheme = z.infer<typeof zShadcnTheme>
+export type ShadcnThemeVars = z.infer<typeof zShadcnThemeVars>
+export type ColorKey = Exclude<keyof ShadcnThemeVars, 'radius'>
 
 export const getDefaultShadcnTheme = (): ShadcnTheme => ({
 	light: {

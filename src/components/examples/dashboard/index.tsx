@@ -9,7 +9,7 @@ import data from './data.json'
 
 export default function DashboardDemo() {
 	return (
-		<>
+		<div className="overflow-hidden rounded-lg">
 			<SidebarProvider
 				className="hidden md:flex"
 				style={
@@ -35,6 +35,6 @@ export default function DashboardDemo() {
 					</div>
 				</SidebarInset>
 			</SidebarProvider>
-		</>
+		</div>
 	)
 }

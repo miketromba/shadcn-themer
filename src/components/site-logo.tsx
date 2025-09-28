@@ -4,9 +4,9 @@ import Link from 'next/link'
 
 export function SiteLogo() {
 	return (
-		<Link href="/">
+		<Link href="/" className="group">
 			<span
-				className="font-semibold text-base font-mono transition-colors duration-200 relative group"
+				className="font-semibold text-base font-mono transition-colors duration-200 relative"
 				style={{ letterSpacing: '0.04em', color: 'white' }}
 			>
 				<span

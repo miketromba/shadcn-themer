@@ -1,4 +1,3 @@
-import { Metadata } from 'next'
 import Link from 'next/link'
 
 import { cn } from '@/lib/utils'
@@ -8,7 +7,7 @@ import { UserAuthForm } from '@/components/examples/authentication/components/us
 export default function AuthenticationDemo() {
 	return (
 		<>
-			<div className="relative container grid flex-1 shrink-0 items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0">
+			<div className="relative container grid flex-1 shrink-0 items-center justify-center lg:max-w-none lg:grid-cols-2 lg:px-0 overflow-hidden rounded-lg">
 				<Link
 					href="/examples/authentication"
 					className={cn(
