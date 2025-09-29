@@ -199,12 +199,6 @@ export const themesRouter = new Hono()
 		),
 		async c => {
 			const user = await getAuthUser(c)
-			if (!process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET) {
-				return c.json(
-					{ ok: false, error: 'Storage bucket not configured' },
-					500
-				)
-			}
 			const { name, json } = c.req.valid('json')
 			const [theme] = await db
 				.insert(schema.themes)

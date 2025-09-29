@@ -42,26 +42,23 @@ export function ThemeDataProvider({
 
 	const [theme, setTheme] = React.useState<ShadcnTheme | null>(null)
 	const [previewMode, setPreviewMode] = React.useState<'light' | 'dark'>(
-		'light'
+		() => {
+			if (typeof window !== 'undefined') {
+				try {
+					const saved = window.localStorage.getItem(
+						PREVIEW_MODE_STORAGE_KEY
+					)
+					if (saved === 'light' || saved === 'dark') return saved
+				} catch {}
+			}
+			return 'light'
+		}
 	)
 	const [needsUpdate, setNeedsUpdate] = React.useState<boolean>(false)
 
-	// Hydrate preview mode from localStorage on mount; only write after hydration
-	const hasHydratedPreviewRef = React.useRef(false)
+	// Persist preview mode changes
 	React.useEffect(() => {
 		if (typeof window === 'undefined') return
-		try {
-			const saved = window.localStorage.getItem(PREVIEW_MODE_STORAGE_KEY)
-			if (saved === 'light' || saved === 'dark') {
-				setPreviewMode(saved)
-			}
-		} catch {
-		} finally {
-			hasHydratedPreviewRef.current = true
-		}
-	}, [])
-	React.useEffect(() => {
-		if (!hasHydratedPreviewRef.current) return
 		try {
 			window.localStorage.setItem(PREVIEW_MODE_STORAGE_KEY, previewMode)
 		} catch {}

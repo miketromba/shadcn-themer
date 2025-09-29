@@ -17,10 +17,17 @@ import {
 } from '@/components/providers/theme-data-provider'
 import { Moon, Sun } from 'lucide-react'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
+import { Skeleton } from '@/components/ui/skeleton'
+import * as React from 'react'
 import { use } from 'react'
 
 function ThemeToggle() {
 	const { previewMode, setPreviewMode } = useThemeData()
+	const [mounted, setMounted] = React.useState(false)
+	React.useEffect(() => setMounted(true), [])
+	if (!mounted) {
+		return <Skeleton className="h-9 w-[108px]" />
+	}
 	return (
 		<ToggleGroup
 			type="single"

@@ -67,7 +67,9 @@ export function useCreateTheme() {
 				const json = await res
 					.json()
 					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error(json.error || 'Failed to create theme')
+				throw new Error(
+					'error' in json ? json.error : 'Failed to create theme'
+				)
 			}
 			return await res.json()
 		},

@@ -35,7 +35,7 @@ export function ThemedScope({
 	const wrapperClass = previewMode === 'dark' ? 'dark' : undefined
 
 	return (
-		<div className={wrapperClass} style={style}>
+		<div className={wrapperClass} style={style} suppressHydrationWarning>
 			{children}
 		</div>
 	)
