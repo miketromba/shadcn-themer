@@ -26,6 +26,8 @@ const ThemeDataContext = React.createContext<ThemeContextValue>({
 	setPreviewMode: () => {}
 })
 
+const PREVIEW_MODE_STORAGE_KEY = 'shadcn-themer-previewMode'
+
 export function ThemeDataProvider({
 	children,
 	id
@@ -43,6 +45,27 @@ export function ThemeDataProvider({
 		'light'
 	)
 	const [needsUpdate, setNeedsUpdate] = React.useState<boolean>(false)
+
+	// Hydrate preview mode from localStorage on mount; only write after hydration
+	const hasHydratedPreviewRef = React.useRef(false)
+	React.useEffect(() => {
+		if (typeof window === 'undefined') return
+		try {
+			const saved = window.localStorage.getItem(PREVIEW_MODE_STORAGE_KEY)
+			if (saved === 'light' || saved === 'dark') {
+				setPreviewMode(saved)
+			}
+		} catch {
+		} finally {
+			hasHydratedPreviewRef.current = true
+		}
+	}, [])
+	React.useEffect(() => {
+		if (!hasHydratedPreviewRef.current) return
+		try {
+			window.localStorage.setItem(PREVIEW_MODE_STORAGE_KEY, previewMode)
+		} catch {}
+	}, [previewMode])
 
 	// Set initial theme on load
 	React.useEffect(() => {
