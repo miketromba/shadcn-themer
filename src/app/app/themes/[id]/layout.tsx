@@ -1,6 +1,5 @@
 'use client'
 
-import { SiteLogo } from '@/components/site-logo'
 import { UserMenu } from '@/components/user-menu'
 import { ThemeEditorSidebar } from '@/components/theme-editor/sidebar'
 import {
@@ -20,6 +19,9 @@ import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import { Skeleton } from '@/components/ui/skeleton'
 import * as React from 'react'
 import { use } from 'react'
+import { ArrowLeft } from 'lucide-react'
+import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 function ThemeToggle() {
 	const { previewMode, setPreviewMode } = useThemeData()
@@ -56,13 +58,23 @@ export default function ThemeLayout({
 }) {
 	// Ensure Next dynamic params are awaited if needed per project rules
 	const { id } = use(params)
-
 	return (
 		<SidebarProvider>
 			<ThemeDataProvider id={id}>
 				<Sidebar collapsible="none" className="border-r h-screen w-72">
 					<SidebarHeader className="border-b p-4 shadow-lg flex flex-row items-center justify-between">
-						<SiteLogo />
+						<Link href="/">
+							<Button
+								variant="ghost"
+								size="sm"
+								type="button"
+								className="rounded-md hover:bg-muted -ml-2"
+								aria-label="Go back"
+							>
+								<ArrowLeft className="size-4" />
+								All Themes
+							</Button>
+						</Link>
 						<ThemeToggle />
 					</SidebarHeader>
 					<SidebarContent>

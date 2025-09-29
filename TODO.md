@@ -19,6 +19,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Go back from editor page
 - Update username
 - Impl usernames (auto-generates unique on sign up)
 - Rename theme
