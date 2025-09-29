@@ -1,5 +1,6 @@
 import ExamplesSwitcher from '@/components/examples'
 import { DeleteThemeDialog } from '@/components/theme-editor/delete-theme-dialog'
+import { StarToggle } from '@/components/theme-editor/star-toggle'
 
 export default async function ThemePage({
 	params
@@ -10,7 +11,14 @@ export default async function ThemePage({
 
 	return (
 		<div className="px-6 py-3 bg-background">
-			<ExamplesSwitcher rightChildren={<DeleteThemeDialog id={id} />} />
+			<ExamplesSwitcher
+				rightChildren={
+					<div className="flex items-center gap-1.5">
+						<StarToggle id={id} />
+						<DeleteThemeDialog id={id} />
+					</div>
+				}
+			/>
 		</div>
 	)
 }

@@ -50,20 +50,10 @@ export const themesRouter = new Hono()
 					name: schema.themes.name,
 					json: schema.themes.json,
 					created_at: schema.themes.created_at,
-					star_count: sql<number>`COALESCE(COUNT(${schema.stars.theme_id}), 0)`
+					star_count: schema.themes.star_count
 				})
 				.from(schema.themes)
-				.leftJoin(
-					schema.stars,
-					eq(schema.stars.theme_id, schema.themes.id)
-				)
 				.where(whereClause)
-				.groupBy(
-					schema.themes.id,
-					schema.themes.name,
-					schema.themes.json,
-					schema.themes.created_at
-				)
 				.orderBy(desc(schema.themes.created_at), desc(schema.themes.id))
 				.limit(limit + 1)
 
@@ -167,26 +157,15 @@ export const themesRouter = new Hono()
 					json: schema.themes.json,
 					created_at: schema.themes.created_at,
 					updated_at: schema.themes.updated_at,
-					star_count: sql<number>`COALESCE(COUNT(${schema.stars.theme_id}), 0)`
+					star_count: schema.themes.star_count,
+					is_starred: sql<boolean>`EXISTS (SELECT 1 FROM ${schema.stars} AS s WHERE s.theme_id = ${schema.themes.id} AND s.user_id = ${user.id})`
 				})
 				.from(schema.themes)
-				.leftJoin(
-					schema.stars,
-					eq(schema.stars.theme_id, schema.themes.id)
-				)
 				.where(
 					and(
 						eq(schema.themes.id, id),
 						eq(schema.themes.user_id, user.id)
 					)
-				)
-				.groupBy(
-					schema.themes.id,
-					schema.themes.user_id,
-					schema.themes.name,
-					schema.themes.json,
-					schema.themes.created_at,
-					schema.themes.updated_at
 				)
 				.limit(1)
 
@@ -198,7 +177,8 @@ export const themesRouter = new Hono()
 			const rowClean = {
 				...row,
 				star_count: Number(row.star_count),
-				json: parsedTheme
+				json: parsedTheme,
+				is_starred: Boolean(row.is_starred)
 			}
 			return c.json({ theme: rowClean })
 		}
@@ -221,7 +201,7 @@ export const themesRouter = new Hono()
 
 			const res = await db
 				.update(schema.themes)
-				.set({ json, updated_at: new Date() })
+				.set({ json })
 				.where(
 					and(
 						eq(schema.themes.id, id),
@@ -255,7 +235,7 @@ export const themesRouter = new Hono()
 
 			const res = await db
 				.update(schema.themes)
-				.set({ name, updated_at: new Date() })
+				.set({ name })
 				.where(
 					and(
 						eq(schema.themes.id, id),
@@ -301,7 +281,7 @@ export const themesRouter = new Hono()
 	// POST /themes/:id/star - star a theme for current user
 	.post(
 		'/:id/star',
-		zValidator('param', z.object({ id: z.string().uuid() })),
+		zValidator('param', z.object({ id: z.uuid() })),
 		async c => {
 			const user = await getAuthUser(c)
 			const { id } = c.req.valid('param')
@@ -316,25 +296,77 @@ export const themesRouter = new Hono()
 				return c.json({ ok: false, error: 'Not found' }, 404)
 			}
 
-			// Insert star, ignore if already starred
-			await db
-				.insert(schema.stars)
-				.values({ user_id: user.id, theme_id: id })
-				.onConflictDoNothing({
-					target: [schema.stars.user_id, schema.stars.theme_id]
-				})
-
-			// Return updated star count
-			const starCountRows = await db
-				.select({ count: sql<number>`count(*)` })
-				.from(schema.stars)
-				.where(eq(schema.stars.theme_id, id))
-				.limit(1)
-			const star_count = Number(starCountRows[0]?.count ?? 0)
+			// Insert star and atomically increment cached star_count if a row was inserted
+			const result = await db.transaction(async tx => {
+				const inserted = await tx
+					.insert(schema.stars)
+					.values({ user_id: user.id, theme_id: id })
+					.onConflictDoNothing({
+						target: [schema.stars.user_id, schema.stars.theme_id]
+					})
+					.returning({ theme_id: schema.stars.theme_id })
+				if (inserted.length) {
+					await tx
+						.update(schema.themes)
+						.set({
+							star_count: sql`"star_count" + 1`
+						})
+						.where(eq(schema.themes.id, id))
+				}
+				const [row] = await tx
+					.select({ star_count: schema.themes.star_count })
+					.from(schema.themes)
+					.where(eq(schema.themes.id, id))
+					.limit(1)
+				return Number(row.star_count)
+			})
 
 			return c.json<{ ok: true; star_count: number }>({
 				ok: true,
-				star_count
+				star_count: result
+			})
+		}
+	)
+
+	// DELETE /themes/:id/star - unstar a theme for current user
+	.delete(
+		'/:id/star',
+		zValidator('param', z.object({ id: z.uuid() })),
+		async c => {
+			const user = await getAuthUser(c)
+			const { id } = c.req.valid('param')
+
+			const result = await db.transaction(async tx => {
+				const deleted = await tx
+					.delete(schema.stars)
+					.where(
+						and(
+							eq(schema.stars.theme_id, id),
+							eq(schema.stars.user_id, user.id)
+						)
+					)
+					.returning({ theme_id: schema.stars.theme_id })
+
+				if (deleted.length) {
+					await tx
+						.update(schema.themes)
+						.set({
+							star_count: sql`GREATEST("star_count" - 1, 0)`
+						})
+						.where(eq(schema.themes.id, id))
+				}
+
+				const [row] = await tx
+					.select({ star_count: schema.themes.star_count })
+					.from(schema.themes)
+					.where(eq(schema.themes.id, id))
+					.limit(1)
+				return Number(row.star_count)
+			})
+
+			return c.json<{ ok: true; star_count: number }>({
+				ok: true,
+				star_count: result
 			})
 		}
 	)

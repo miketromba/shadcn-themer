@@ -6,7 +6,6 @@ import {
 	useQuery,
 	useQueryClient
 } from '@tanstack/react-query'
-import type { InfiniteData } from '@tanstack/react-query'
 import { apiClient, InferRequestType, InferResponseType } from '@/api/client'
 import { useRouter } from 'next/navigation'
 import { DEFAULT_PAGE_SIZE } from '@/lib/pagination'
@@ -29,6 +28,9 @@ export type StarThemeResponse = InferResponseType<
 	(typeof apiClient.api.themes)[':id']['star']['$post']
 >
 export type StarThemeSuccess = { ok: true; star_count: number }
+export type UnstarThemeResponse = InferResponseType<
+	(typeof apiClient.api.themes)[':id']['star']['$delete']
+>
 
 export type UpdateThemeResponse = InferResponseType<
 	(typeof apiClient.api.themes)[':id']['$put']
@@ -63,7 +65,7 @@ export function useThemesList({
 			if (!res.ok) throw new Error('Failed to load themes')
 			return await res.json()
 		},
-		initialPageParam: null as string | null,
+		initialPageParam: null,
 		getNextPageParam: lastPage => lastPage.nextToken
 	})
 }
@@ -75,12 +77,7 @@ export function useCreateTheme() {
 		mutationFn: async input => {
 			const res = await apiClient.api.themes.$post({ json: input })
 			if (!res.ok) {
-				const json = await res
-					.json()
-					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error(
-					'error' in json ? json.error : 'Failed to create theme'
-				)
+				throw new Error('Failed to create theme')
 			}
 			return await res.json()
 		},
@@ -110,97 +107,98 @@ export function useTheme(id: string | undefined) {
 
 export function useStarTheme() {
 	const qc = useQueryClient()
-	return useMutation<
-		StarThemeSuccess,
-		Error,
-		{ id: string },
-		{
-			prevThemes: Array<
-				[unknown, InfiniteData<ThemesListResponse> | undefined]
-			>
-			prevTheme: ThemeResponse | undefined
-		}
-	>({
-		mutationFn: async ({ id }) => {
+	return useMutation({
+		mutationFn: async ({ id }: { id: string }) => {
 			const res = await apiClient.api.themes[':id'].star.$post({
 				param: { id }
 			})
-			if (!res.ok) {
-				const json = await res
-					.json()
-					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error((json as any).error || 'Failed to star theme')
-			}
-			return (await res.json()) as StarThemeSuccess
+			if (!res.ok) throw new Error('Failed to star theme')
+			return await res.json()
 		},
 		onMutate: async ({ id }) => {
-			await qc.cancelQueries({ queryKey: ['themes'] })
 			await qc.cancelQueries({ queryKey: ['theme', id] })
-
-			const prevThemes = qc.getQueriesData<
-				InfiniteData<ThemesListResponse>
-			>({
-				queryKey: ['themes']
-			})
 			const prevTheme = qc.getQueryData<ThemeResponse>(['theme', id])
-
-			// Optimistically bump stars in list pages
-			for (const [key, data] of prevThemes) {
-				if (!data?.pages) continue
-				const newPages = data.pages.map(p => ({
-					...p,
-					items: (p.items || []).map(it =>
-						it.id === id
-							? { ...it, star_count: (it.star_count ?? 0) + 1 }
-							: it
-					)
-				}))
-				qc.setQueryData(key as any, { ...data, pages: newPages })
-			}
-
-			// Optimistically bump star_count in single theme cache
-			if (prevTheme) {
-				qc.setQueryData(['theme', id], {
+			if (prevTheme && 'theme' in prevTheme) {
+				qc.setQueryData<ThemeResponse>(['theme', id], {
 					...prevTheme,
-					star_count: (prevTheme as any).star_count + 1
+					theme: {
+						...prevTheme.theme,
+						star_count: prevTheme.theme.star_count + 1,
+						is_starred: true
+					}
 				})
 			}
-
-			return { prevThemes, prevTheme }
+			return { prevTheme }
 		},
 		onError: (_err, { id }, ctx) => {
-			// Rollback on error
-			if (ctx?.prevThemes) {
-				for (const [key, data] of ctx.prevThemes) {
-					qc.setQueryData(key as any, data)
-				}
-			}
 			if (ctx?.prevTheme) {
 				qc.setQueryData(['theme', id], ctx.prevTheme)
 			}
 		},
 		onSuccess: (data, { id }) => {
-			// Reconcile caches to the authoritative count from the server
-			qc.setQueriesData<InfiniteData<ThemesListResponse>>(
-				{ queryKey: ['themes'] },
-				prev => {
-					if (!prev) return prev
-					return {
-						...prev,
-						pages: prev.pages.map(page => ({
-							...page,
-							items: page.items.map(item =>
-								item.id === id
-									? { ...item, star_count: data.star_count }
-									: item
-							)
-						}))
-					}
-				}
-			)
-
 			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
-				prev ? { ...prev, star_count: data.star_count } : prev
+				prev && 'theme' in prev
+					? {
+							...prev,
+							theme: {
+								...prev.theme,
+								star_count: data.star_count,
+								is_starred: true
+							}
+					  }
+					: prev
+			)
+		}
+	})
+}
+
+export function useUnstarTheme() {
+	const qc = useQueryClient()
+	return useMutation<
+		UnstarThemeResponse,
+		Error,
+		{ id: string },
+		{ prevTheme?: ThemeResponse }
+	>({
+		mutationFn: async ({ id }) => {
+			const res = await apiClient.api.themes[':id'].star.$delete({
+				param: { id }
+			})
+			if (!res.ok) throw new Error('Failed to unstar theme')
+			return await res.json()
+		},
+		onMutate: async ({ id }) => {
+			await qc.cancelQueries({ queryKey: ['theme', id] })
+			const prevTheme = qc.getQueryData<ThemeResponse>(['theme', id])
+			if (prevTheme && 'theme' in prevTheme) {
+				qc.setQueryData<ThemeResponse>(['theme', id], {
+					...prevTheme,
+					theme: {
+						...prevTheme.theme,
+						star_count: Math.max(prevTheme.theme.star_count - 1, 0),
+						is_starred: false
+					}
+				})
+			}
+			return { prevTheme }
+		},
+		onError: (_err, { id }, ctx) => {
+			if (ctx?.prevTheme) {
+				qc.setQueryData(['theme', id], ctx.prevTheme)
+			}
+		},
+		onSuccess: (data, { id }) => {
+			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
+				prev && 'theme' in prev
+					? {
+							...prev,
+							theme: {
+								...prev.theme,
+								star_count: data.star_count,
+								is_starred: false
+							}
+					  }
+					: prev
 			)
 		}
 	})
@@ -218,18 +216,18 @@ export function useUpdateTheme() {
 				param: { id },
 				json: { json }
 			})
-			if (!res.ok) {
-				const body = await res
-					.json()
-					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error((body as any).error || 'Failed to update theme')
-			}
+			if (!res.ok) throw new Error('Failed to update theme')
 			return await res.json()
 		},
 		onSuccess: (_data, { id, json }) => {
 			// Replace ONLY the cached single theme value to avoid re-fetch loop
 			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
-				prev ? { ...prev, json } : prev
+				prev && 'theme' in prev
+					? {
+							...prev,
+							theme: { ...prev.theme, json }
+					  }
+					: prev
 			)
 		}
 	})
@@ -247,12 +245,7 @@ export function useUpdateThemeMeta() {
 				param: { id },
 				json: body
 			})
-			if (!res.ok) {
-				const body = await res
-					.json()
-					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error((body as any).error || 'Failed to update theme')
-			}
+			if (!res.ok) throw new Error('Failed to update theme')
 			return await res.json()
 		},
 		onSuccess: async (_data, { id, body }) => {
@@ -267,22 +260,17 @@ export function useDeleteTheme() {
 	const qc = useQueryClient()
 	const router = useRouter()
 	return useMutation<DeleteThemeResponse, Error, { id: string }>({
-		mutationFn: async ({ id }) => {
+		mutationFn: async ({ id }: { id: string }) => {
 			const res = await apiClient.api.themes[':id'].$delete({
 				param: { id }
 			})
-			if (!res.ok) {
-				const body = await res
-					.json()
-					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error(
-					(body as { error?: string }).error ||
-						'Failed to delete theme'
-				)
-			}
+			if (!res.ok) throw new Error('Failed to delete theme')
 			return await res.json()
 		},
-		onSuccess: async (_data, { id }) => {
+		onSuccess: async (
+			_data: DeleteThemeResponse,
+			{ id }: { id: string }
+		) => {
 			// Ensure caches refresh and navigate home
 			await qc.invalidateQueries({ queryKey: ['themes'] })
 			qc.removeQueries({ queryKey: ['theme', id] })

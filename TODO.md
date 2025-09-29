@@ -1,5 +1,4 @@
 # Todo
-- Star themes
 - Allow viewing theme in unauthenticated state (show fork button etc which pops up auth modal)
 - Rendered preview image for themes
 - Paginated list themes
@@ -18,6 +17,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Star themes
 - Delete theme
 - Go back from editor page
 - Update username

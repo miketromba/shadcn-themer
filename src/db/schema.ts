@@ -8,7 +8,8 @@ import {
 	primaryKey,
 	jsonb,
 	uniqueIndex,
-	AnyPgColumn
+	AnyPgColumn,
+	integer
 } from 'drizzle-orm/pg-core'
 import { SQL, sql } from 'drizzle-orm'
 
@@ -19,6 +20,7 @@ export const themes = pgTable('themes', {
 	name: text('name').notNull(),
 	json: jsonb('json').notNull(),
 	forked_from: uuid('forked_from'),
+	star_count: integer('star_count').default(0).notNull(),
 	created_at: timestamp('created_at', {
 		mode: 'date',
 		withTimezone: true
@@ -29,6 +31,7 @@ export const themes = pgTable('themes', {
 		mode: 'date',
 		withTimezone: true
 	})
+		.$onUpdate(() => new Date())
 		.defaultNow()
 		.notNull()
 })
@@ -74,6 +77,7 @@ export const profiles = pgTable(
 			mode: 'date',
 			withTimezone: true
 		})
+			.$onUpdate(() => new Date())
 			.defaultNow()
 			.notNull(),
 		changelog_last_viewed: timestamp('changelog_last_viewed', {

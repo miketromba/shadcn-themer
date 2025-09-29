@@ -1,0 +1,1 @@
+ALTER TABLE "themes" ADD COLUMN "star_count" integer DEFAULT 0 NOT NULL;
