@@ -3,6 +3,7 @@ import { cors } from 'hono/cors'
 import { logger } from 'hono/logger'
 import { pingRouter } from './ping'
 import { themesRouter } from './themes'
+import { usersRouter } from './users'
 
 // Create the main API router
 const api = new Hono().basePath('/api')
@@ -21,8 +22,8 @@ api.use(
 			...(process.env.NODE_ENV === 'development'
 				? ['http://localhost:3000']
 				: []),
-			'https://infloo.ai', // Replace with your actual production domain
-			'https://www.infloo.ai' // Include www subdomain if you use it
+			'https://shadcnthemer.com', // Replace with your actual production domain
+			'https://www.shadcnthemer.com' // Include www subdomain if you use it
 		],
 		credentials: true, // Allow credentials (cookies, auth headers)
 		allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -36,6 +37,7 @@ api.use(
 export const routes = api
 	.route('/ping', pingRouter)
 	.route('/themes', themesRouter)
+	.route('/user', usersRouter)
 // .route('/other', otherRouter)
 
 // Export the Hono app

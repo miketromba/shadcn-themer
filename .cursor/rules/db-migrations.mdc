@@ -24,7 +24,7 @@ We have scripts in our package.json for this:
 
 ## Custom migrations
 
-If you need to run a custom migration, e.g. for adding RLS policies or performing certain data migrations that cannot be automatically created via db:generate, you may use the command `pnpm db:generate:custom` which will create a new migration sql file and log it's name/location to the command line. You can then open that file and write your migration SQL in there. When you are finished, you can run the migration with the same migrate command `pnpm db:migrate`.
+Never manually create migration SQL files. If you need to run a custom migration, e.g. for adding RLS policies or performing certain data migrations that cannot be automatically created via db:generate, you may use the command `pnpm db:generate:custom` which will create a new migration sql file and log it's name/location to the command line. You can then open that file and write your migration SQL in there. When you are finished, you can run the migration with the same migrate command `pnpm db:migrate`.
 
 ## RLS / Authorization
 

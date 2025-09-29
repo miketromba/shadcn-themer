@@ -79,6 +79,7 @@
     "sonner": "^2.0.7",
     "tailwind-merge": "^3.3.0",
     "throat": "^6.0.2",
+    "unique-username-generator": "^1.5.1",
     "vaul": "^1.1.2",
     "zod": "^4.1.5"
   },

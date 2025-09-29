@@ -16,6 +16,9 @@
 - Download/install via shadcn CLI (registry thing ?)
 - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 - Polish UX
+- TOS/privacy/contact
+- Add to flamelab projects list
+- Add to mike.gg list ?
 
 # Done
 - Rename theme

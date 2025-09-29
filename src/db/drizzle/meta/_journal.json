@@ -15,6 +15,20 @@
       "when": 1757718583434,
       "tag": "0001_empty_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1759171881012,
+      "tag": "0002_hot_supreme_intelligence",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1759173620788,
+      "tag": "0003_past_rattler",
+      "breakpoints": true
     }
   ]
 }

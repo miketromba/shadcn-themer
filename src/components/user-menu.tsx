@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
+import { useCurrentUserProfile } from '@/api/client/users'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
 	DropdownMenu,
@@ -26,6 +27,7 @@ export function UserMenu() {
 
 	const [isMounted, setIsMounted] = useState(false)
 	const [user, setUser] = useState<SupabaseUser | null>(null)
+	const { data: profileResponse } = useCurrentUserProfile(Boolean(user))
 
 	useEffect(() => {
 		setIsMounted(true)
@@ -51,13 +53,15 @@ export function UserMenu() {
 	}, [])
 
 	const displayName = useMemo(() => {
+		const username = profileResponse?.profile?.username ?? ''
+		if (username) return username
 		const email = user?.email ?? ''
 		const meta = (user?.user_metadata ?? {}) as {
 			full_name?: string
 			name?: string
 		}
 		return meta.full_name || meta.name || email || 'User'
-	}, [user])
+	}, [user, profileResponse])
 
 	const initials = useMemo(() => {
 		if (!displayName) return 'U'

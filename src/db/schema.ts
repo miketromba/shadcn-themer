@@ -6,8 +6,11 @@ import {
 	uuid,
 	index,
 	primaryKey,
-	jsonb
+	jsonb,
+	uniqueIndex,
+	AnyPgColumn
 } from 'drizzle-orm/pg-core'
+import { SQL, sql } from 'drizzle-orm'
 
 // Themes table
 export const themes = pgTable('themes', {
@@ -52,6 +55,7 @@ export const profiles = pgTable(
 	{
 		id: uuid('id').primaryKey(), // References auth.users, handled via trigger
 		email: text('email'),
+		username: text('username'),
 		email_confirmed_at: timestamp('email_confirmed_at', {
 			mode: 'date',
 			withTimezone: true
@@ -80,6 +84,12 @@ export const profiles = pgTable(
 	},
 	table => [
 		index('profiles_id_idx').on(table.id),
-		index('profiles_email_idx').on(table.email)
+		index('profiles_email_idx').on(table.email),
+		uniqueIndex('profiles_username_lower_unique').on(lower(table.username))
 	]
 )
+
+// Custom lower() helper for functional unique index and lookups
+export function lower(column: AnyPgColumn): SQL {
+	return sql`lower(${column})`
+}
