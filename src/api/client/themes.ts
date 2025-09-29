@@ -37,6 +37,13 @@ export type UpdateThemeInput = InferRequestType<
 	(typeof apiClient.api.themes)[':id']['$put']
 >['json']
 
+export type UpdateThemeMetaResponse = InferResponseType<
+	(typeof apiClient.api.themes)[':id']['meta']['$patch']
+>
+export type UpdateThemeMetaInput = InferRequestType<
+	(typeof apiClient.api.themes)[':id']['meta']['$patch']
+>['json']
+
 export function useThemesList({
 	pageSize = DEFAULT_PAGE_SIZE
 }: { pageSize?: number } = {}) {
@@ -220,6 +227,34 @@ export function useUpdateTheme() {
 			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
 				prev ? { ...prev, json } : prev
 			)
+		}
+	})
+}
+
+export function useUpdateThemeMeta() {
+	const qc = useQueryClient()
+	return useMutation<
+		UpdateThemeMetaResponse,
+		Error,
+		{ id: string; body: UpdateThemeMetaInput }
+	>({
+		mutationFn: async ({ id, body }) => {
+			const res = await apiClient.api.themes[':id'].meta['$patch']({
+				param: { id },
+				json: body
+			})
+			if (!res.ok) {
+				const body = await res
+					.json()
+					.catch(() => ({ error: 'Unknown error' }))
+				throw new Error((body as any).error || 'Failed to update theme')
+			}
+			return await res.json()
+		},
+		onSuccess: async (_data, { id, body }) => {
+			// Ensure both single theme and lists reflect the change
+			await qc.invalidateQueries({ queryKey: ['theme', id] })
+			await qc.invalidateQueries({ queryKey: ['themes'] })
 		}
 	})
 }

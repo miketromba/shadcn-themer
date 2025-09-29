@@ -10,6 +10,7 @@ import {
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { ColorKey, getDefaultShadcnTheme } from '@/lib/shadcnTheme'
 import { useThemeData } from '@/components/providers/theme-data-provider'
+import { ThemeNameEditor } from '@/components/theme-editor/theme-name-editor'
 import {
 	OklchColorPicker,
 	parseOKLCH,
@@ -117,10 +118,10 @@ export function ThemeEditorSidebar() {
 	const { theme, updateVar, previewMode } = useThemeData()
 	const [editingKey, setEditingKey] = React.useState<ColorKey | null>(null)
 	const defaults = React.useMemo(() => getDefaultShadcnTheme(), [])
-
 	return (
 		<ScrollArea className="h-full" tableFix>
 			<div className="p-3 space-y-3">
+				<ThemeNameEditor />
 				{!theme ? (
 					<div className="text-sm text-muted-foreground">
 						Loading...

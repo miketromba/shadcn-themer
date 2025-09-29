@@ -10,6 +10,7 @@ import { useTheme as useThemeQuery, useUpdateTheme } from '@/api/client/themes'
 
 type ThemeContextValue = {
 	theme: ShadcnTheme | null
+	id?: string
 	updateVar: (
 		key: ColorKey,
 		value: string,
@@ -21,6 +22,7 @@ type ThemeContextValue = {
 
 const ThemeDataContext = React.createContext<ThemeContextValue>({
 	theme: getDefaultShadcnTheme(),
+	id: undefined,
 	updateVar: () => {},
 	previewMode: 'light',
 	setPreviewMode: () => {}
@@ -90,8 +92,8 @@ export function ThemeDataProvider({
 	)
 
 	const ctx: ThemeContextValue = React.useMemo(
-		() => ({ theme, updateVar, previewMode, setPreviewMode }),
-		[theme, updateVar, previewMode]
+		() => ({ theme, id, updateVar, previewMode, setPreviewMode }),
+		[theme, id, updateVar, previewMode]
 	)
 
 	// Debounced auto-save when theme changes and id is present

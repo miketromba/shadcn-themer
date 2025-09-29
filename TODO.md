@@ -1,6 +1,4 @@
 # Todo
-- Create theme
-- Rename theme
 - Require username on signup
     - Checks if username available
 - Delete theme
@@ -17,7 +15,10 @@
     - Sort by popular (star count) - past 7d, past 30d, this year, all time
 - Download/install via shadcn CLI (registry thing ?)
 - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
+- Polish UX
 
 # Done
+- Rename theme
+- Create theme
 - Persist preview mode state (light/dark) in localstorage
 - Theme editing

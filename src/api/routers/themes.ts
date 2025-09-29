@@ -187,6 +187,40 @@ export const themesRouter = new Hono()
 		}
 	)
 
+	// PATCH /themes/:id/meta - update theme metadata (e.g., name)
+	.patch(
+		'/:id/meta',
+		zValidator('param', z.object({ id: z.uuid() })),
+		zValidator(
+			'json',
+			z.object({
+				name: z.string().min(2).max(100)
+			})
+		),
+		async c => {
+			const user = await getAuthUser(c)
+			const { id } = c.req.valid('param')
+			const { name } = c.req.valid('json')
+
+			const res = await db
+				.update(schema.themes)
+				.set({ name, updated_at: new Date() })
+				.where(
+					and(
+						eq(schema.themes.id, id),
+						eq(schema.themes.user_id, user.id)
+					)
+				)
+				.returning({ id: schema.themes.id })
+
+			if (!res.length) {
+				return c.json({ ok: false, error: 'Not found' }, 404)
+			}
+
+			return c.json({ ok: true })
+		}
+	)
+
 	// POST /themes - create theme
 	.post(
 		'/',
