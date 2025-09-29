@@ -1,5 +1,4 @@
 # Todo
-- Delete theme
 - Star themes
 - Allow viewing theme in unauthenticated state (show fork button etc which pops up auth modal)
 - Rendered preview image for themes
@@ -19,6 +18,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Delete theme
 - Go back from editor page
 - Update username
 - Impl usernames (auto-generates unique on sign up)

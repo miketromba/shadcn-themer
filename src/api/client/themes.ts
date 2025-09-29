@@ -44,6 +44,10 @@ export type UpdateThemeMetaInput = InferRequestType<
 	(typeof apiClient.api.themes)[':id']['meta']['$patch']
 >['json']
 
+export type DeleteThemeResponse = InferResponseType<
+	(typeof apiClient.api.themes)[':id']['$delete']
+>
+
 export function useThemesList({
 	pageSize = DEFAULT_PAGE_SIZE
 }: { pageSize?: number } = {}) {
@@ -255,6 +259,34 @@ export function useUpdateThemeMeta() {
 			// Ensure both single theme and lists reflect the change
 			await qc.invalidateQueries({ queryKey: ['theme', id] })
 			await qc.invalidateQueries({ queryKey: ['themes'] })
+		}
+	})
+}
+
+export function useDeleteTheme() {
+	const qc = useQueryClient()
+	const router = useRouter()
+	return useMutation<DeleteThemeResponse, Error, { id: string }>({
+		mutationFn: async ({ id }) => {
+			const res = await apiClient.api.themes[':id'].$delete({
+				param: { id }
+			})
+			if (!res.ok) {
+				const body = await res
+					.json()
+					.catch(() => ({ error: 'Unknown error' }))
+				throw new Error(
+					(body as { error?: string }).error ||
+						'Failed to delete theme'
+				)
+			}
+			return await res.json()
+		},
+		onSuccess: async (_data, { id }) => {
+			// Ensure caches refresh and navigate home
+			await qc.invalidateQueries({ queryKey: ['themes'] })
+			qc.removeQueries({ queryKey: ['theme', id] })
+			router.push('/')
 		}
 	})
 }

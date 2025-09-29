@@ -1,4 +1,5 @@
 import ExamplesSwitcher from '@/components/examples'
+import { DeleteThemeDialog } from '@/components/theme-editor/delete-theme-dialog'
 
 export default async function ThemePage({
 	params
@@ -9,7 +10,7 @@ export default async function ThemePage({
 
 	return (
 		<div className="px-6 py-3 bg-background">
-			<ExamplesSwitcher />
+			<ExamplesSwitcher rightChildren={<DeleteThemeDialog id={id} />} />
 		</div>
 	)
 }

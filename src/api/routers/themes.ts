@@ -12,11 +12,7 @@ import {
 	encodePaginationToken,
 	type PaginatedResponse
 } from '@/lib/pagination'
-import {
-	parseShadcnThemeFromJson,
-	zShadcnTheme,
-	type ShadcnTheme
-} from '@/lib/shadcnTheme'
+import { parseShadcnThemeFromJson, zShadcnTheme } from '@/lib/shadcnTheme'
 
 export const themesRouter = new Hono()
 	// GET /themes?pageSize&nextToken
@@ -96,6 +92,61 @@ export const themesRouter = new Hono()
 				items,
 				nextToken: nextPageToken,
 				hasMore
+			})
+		}
+	)
+
+	// DELETE /themes/:id - delete a theme owned by the current user
+	.delete(
+		'/:id',
+		zValidator('param', z.object({ id: z.uuid() })),
+		async c => {
+			const user = await getAuthUser(c)
+			const { id } = c.req.valid('param')
+
+			// Ensure the theme exists and belongs to the user
+			const theme = await db
+				.select({ id: schema.themes.id })
+				.from(schema.themes)
+				.where(
+					and(
+						eq(schema.themes.id, id),
+						eq(schema.themes.user_id, user.id)
+					)
+				)
+				.limit(1)
+			if (!theme.length) {
+				return c.json({ ok: false, error: 'Not found' }, 404)
+			}
+
+			// Open a transaction
+			return await db.transaction(async tx => {
+				// First delete related stars for this theme (no cascade in schema)
+				await tx
+					.delete(schema.stars)
+					.where(eq(schema.stars.theme_id, id))
+
+				// Unset any forked_from themes
+				await tx
+					.update(schema.themes)
+					.set({ forked_from: null })
+					.where(eq(schema.themes.forked_from, id))
+
+				// Then delete the theme if owned by user
+				const deleted = await tx
+					.delete(schema.themes)
+					.where(
+						and(
+							eq(schema.themes.id, id),
+							eq(schema.themes.user_id, user.id)
+						)
+					)
+					.returning({ id: schema.themes.id })
+
+				if (!deleted.length) {
+					return c.json({ ok: false, error: 'Not found' }, 404)
+				}
+				return c.json({ ok: true })
 			})
 		}
 	)
