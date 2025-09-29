@@ -5,6 +5,7 @@ import { db, schema } from '@/db'
 import { getAuthUser } from '@/api/auth'
 import { eq } from 'drizzle-orm'
 import generateUniqueUsername from '@/lib/generateUniqueUsername'
+import { lower } from '@/db/schema'
 
 export const usersRouter = new Hono()
 	// GET /user/me - current authenticated user's profile
@@ -41,6 +42,69 @@ export const usersRouter = new Hono()
 
 		return c.json({ profile })
 	})
+
+	// PATCH /user/username - update current user's username
+	.patch(
+		'/username',
+		zValidator(
+			'json',
+			z.object({
+				username: z
+					.string()
+					.min(4, 'Username must be at least 4 characters')
+					.regex(
+						/^[a-z0-9_-]+$/,
+						'Use lowercase letters, numbers, underscores, or hyphens only'
+					)
+			})
+		),
+		async c => {
+			const user = await getAuthUser(c)
+			const { username } = c.req.valid('json')
+			const candidate = username.toLowerCase().trim()
+
+			if (candidate.length < 4) {
+				return c.json(
+					{ error: 'Username must be at least 4 characters' },
+					400
+				)
+			}
+
+			try {
+				const updated = await db
+					.update(schema.profiles)
+					.set({ username: candidate, updated_at: new Date() })
+					.where(eq(schema.profiles.id, user.id))
+					.returning({
+						id: schema.profiles.id,
+						email: schema.profiles.email,
+						username: schema.profiles.username,
+						created_at: schema.profiles.created_at,
+						updated_at: schema.profiles.updated_at
+					})
+
+				if (!updated.length) {
+					return c.json({ error: 'Profile not found' }, 404)
+				}
+
+				return c.json({ profile: updated[0] })
+			} catch (error: unknown) {
+				// Unique violation due to existing username (case-insensitive)
+				if (
+					typeof error === 'object' &&
+					error !== null &&
+					'code' in error &&
+					(error as { code?: string }).code === '23505'
+				) {
+					return c.json(
+						{ error: 'That username is already taken' },
+						409
+					)
+				}
+				throw error
+			}
+		}
+	)
 
 	// GET /user/:id - profile by id
 	.get(

@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { apiClient, InferResponseType } from '@/api/client'
 
 export type CurrentUserProfileResponse = InferResponseType<
@@ -35,6 +35,30 @@ export function useUserProfileById(id: string | null | undefined) {
 				throw new Error(`Failed to fetch profile (${response.status})`)
 			}
 			return response.json()
+		}
+	})
+}
+
+export function useUpdateUsername() {
+	const queryClient = useQueryClient()
+	return useMutation({
+		mutationFn: async (username: string) => {
+			const res = await apiClient.api.user.username.$patch({
+				json: { username }
+			})
+			if (!res.ok) {
+				const body = (await res.json().catch(() => ({}))) as
+					| { error: string }
+					| Record<string, never>
+				const message =
+					('error' in body ? body.error : undefined) ||
+					`Failed to update username (${res.status})`
+				throw new Error(message)
+			}
+			return (await res.json()) as CurrentUserProfileResponse
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ['user', 'me'] })
 		}
 	})
 }

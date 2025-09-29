@@ -16,6 +16,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu'
+import { ChangeUsernameDialog } from '@/components/user/change-username-dialog'
 
 type SupabaseUser = {
 	email?: string | null
@@ -28,6 +29,7 @@ export function UserMenu() {
 	const [isMounted, setIsMounted] = useState(false)
 	const [user, setUser] = useState<SupabaseUser | null>(null)
 	const { data: profileResponse } = useCurrentUserProfile(Boolean(user))
+	const [open, setOpen] = useState(false)
 
 	useEffect(() => {
 		setIsMounted(true)
@@ -118,10 +120,18 @@ export function UserMenu() {
 					{user?.email || 'Signed in'}
 				</DropdownMenuLabel>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem onClick={() => setOpen(true)}>
+					Change username
+				</DropdownMenuItem>
 				<DropdownMenuItem variant="destructive" onClick={signOut}>
 					Sign out
 				</DropdownMenuItem>
 			</DropdownMenuContent>
+			<ChangeUsernameDialog
+				open={open}
+				onOpenChange={setOpen}
+				currentUsername={profileResponse?.profile?.username ?? ''}
+			/>
 		</DropdownMenu>
 	)
 }

@@ -1,6 +1,4 @@
 # Todo
-- Require username on signup
-    - Checks if username available
 - Delete theme
 - Star themes
 - Allow viewing theme in unauthenticated state (show fork button etc which pops up auth modal)
@@ -21,6 +19,8 @@
 - Add to mike.gg list ?
 
 # Done
+- Update username
+- Impl usernames (auto-generates unique on sign up)
 - Rename theme
 - Create theme
 - Persist preview mode state (light/dark) in localstorage
