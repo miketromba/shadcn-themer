@@ -195,15 +195,15 @@ export const extractVarsFromBlock = (
 	return result
 }
 
-const mergeThemeVars = (
-	into: Partial<ThemeVars> | undefined,
-	from: Partial<ThemeVars> | undefined
-): Partial<ThemeVars> | undefined => {
+const overrideExistingObjectVars = (
+	into: Record<string, unknown>,
+	from: Record<string, unknown>
+): Record<string, unknown> => {
 	if (!from) return into
-	const out: Partial<ThemeVars> = { ...(into ?? {}) }
-	for (const [k, v] of Object.entries(from)) {
-		if (typeof v === 'string' && v.trim().length > 0) {
-			;(out as Record<string, string>)[k] = v
+	const out = { ...into }
+	for (const key in into) {
+		if (key in from && typeof from[key] === typeof into[key]) {
+			out[key] = from[key]
 		}
 	}
 	return out
@@ -216,83 +216,71 @@ export const parseShadcnThemeFromCss = (css: string): ShadcnTheme => {
 	if (rootMatch) {
 		const rootContent: string = rootMatch[2] ?? ''
 		const extracted = extractVarsFromBlock(rootContent)
-		theme.light = mergeThemeVars(theme.light, extracted) ?? theme.light
+		theme.light = overrideExistingObjectVars(theme.light, extracted)
 	}
 
 	const darkMatch = getBlockMatch(css, '.dark')
 	if (darkMatch) {
 		const darkContent: string = darkMatch[2] ?? ''
 		const extracted = extractVarsFromBlock(darkContent)
-		theme.dark = mergeThemeVars(theme.dark, extracted) ?? theme.dark
+		theme.dark = overrideExistingObjectVars(theme.dark, extracted)
 	}
 
 	return theme
 }
 
-type JsonValue =
-	| null
-	| boolean
-	| number
-	| string
-	| JsonValue[]
-	| { [key: string]: JsonValue }
+// type Primitive = string | number | boolean | null
+// function isPrimitive(val: unknown): val is Primitive {
+// 	return (
+// 		typeof val === 'string' ||
+// 		typeof val === 'number' ||
+// 		typeof val === 'boolean' ||
+// 		val === null
+// 	)
+// }
+// function safeExtractPrimitive<T extends Primitive>(
+// 	obj: unknown,
+// 	prop: string,
+// 	defaultValue: T
+// ): T {
+// 	if (typeof obj === 'object' && obj !== null && prop in obj)
+// 		return obj[prop as keyof typeof obj] as T
+// 	return defaultValue
+// }
 
-const normalizeVarsObject = (obj: unknown): Partial<ThemeVars> => {
-	const result: Partial<ThemeVars> = {}
-	if (!obj || typeof obj !== 'object') return result
-	const record = obj as Record<string, unknown>
-	for (const key of THEME_VAR_KEYS) {
-		const raw = record[key as string]
-		if (typeof raw === 'string') {
-			;(result as Record<string, string>)[key as string] = raw
-		} else if (typeof raw === 'number') {
-			;(result as Record<string, string>)[key as string] = String(raw)
-		} else if (Array.isArray(raw)) {
-			const first = (raw as unknown[]).find(
-				(x): x is string => typeof x === 'string' && x.trim().length > 0
-			)
-			if (typeof first === 'string') {
-				;(result as Record<string, string>)[key as string] = first
-			}
-		}
-	}
-	return result
-}
-
-export const parseShadcnThemeFromJson = (jsonString: unknown): ShadcnTheme => {
-	const theme = getDefaultShadcnTheme()
-	if (typeof jsonString !== 'string') return theme
-	let parsed: JsonValue
+export const parseShadcnThemeFromJson = (json: unknown): ShadcnTheme => {
+	const input: Record<string, unknown> =
+		typeof json === 'string' ? JSON.parse(json) : json
+	const out = getDefaultShadcnTheme()
 	try {
-		parsed = JSON.parse(jsonString) as JsonValue
-	} catch {
-		return theme
+		if (typeof input !== 'object' || typeof input === null) {
+			console.error('Parsed json is not an object')
+			return out
+		}
+		if (typeof input.light === 'object' && input.light !== null) {
+			out.light = overrideExistingObjectVars(
+				out.light,
+				input.light as Record<string, unknown>
+			)
+		}
+		if (typeof input.dark === 'object' && input.dark !== null) {
+			out.dark = overrideExistingObjectVars(
+				out.dark,
+				input.dark as Record<string, unknown>
+			)
+		}
+		return out
+	} catch (e) {
+		console.error(e)
+		return out
 	}
-	if (!parsed || typeof parsed !== 'object') return theme
-	const obj = parsed as Record<string, unknown>
-
-	// Top-level overrides treated as light
-	const topLevelVars = normalizeVarsObject(obj)
-	theme.light = mergeThemeVars(theme.light, topLevelVars) ?? theme.light
-
-	// Nested light/dark objects
-	if (obj.light && typeof obj.light === 'object') {
-		const lv = normalizeVarsObject(obj.light)
-		theme.light = mergeThemeVars(theme.light, lv) ?? theme.light
-	}
-	if (obj.dark && typeof obj.dark === 'object') {
-		const dv = normalizeVarsObject(obj.dark)
-		theme.dark = mergeThemeVars(theme.dark, dv) ?? theme.dark
-	}
-
-	return theme
 }
 
 // Lightweight tests - run with: pnpm tsx packages/common-utils/src/applyShadCnTheme.ts
 if (
 	typeof process !== 'undefined' &&
 	Array.isArray(process.argv) &&
-	(process.argv[1]?.endsWith('applyShadCnTheme.ts') ?? false)
+	(process.argv[1]?.endsWith('shadcnTheme.ts') ?? false)
 ) {
 	const run = (name: string, fn: () => void): void => {
 		try {
@@ -385,12 +373,31 @@ if (
 			const theme = parseShadcnThemeFromJson(json)
 			if (theme.light?.primary !== 'oklch(0.2 0 0)')
 				throw new Error('json light primary not applied')
-			if (theme.light?.ring !== 'oklch(0.6 0 0)')
-				throw new Error('json light ring not applied')
-			if (theme.dark?.primary !== '42')
-				throw new Error('json dark primary number not stringified')
-			if (theme.light?.['card-foreground'] !== 'oklch(0.3 0 0)')
-				throw new Error('json top-level vars not merged into light')
+			// ring provided as an array -> malformed, should keep default
+			if (theme.light?.ring !== 'oklch(0.708 0 0)')
+				throw new Error('malformed ring should not override default')
+			// dark.primary provided as number -> type mismatch, keep default
+			if (theme.dark?.primary !== 'oklch(0.922 0 0)')
+				throw new Error('mismatched type should not override default')
+			// top-level keys should not override light unless explicitly supported
+			if (theme.light?.['card-foreground'] !== 'oklch(0.145 0 0)')
+				throw new Error(
+					'top-level key should not override light by default'
+				)
 		}
 	)
+
+	// Test 7: parseShadcnThemeFromJson returns fresh object instances per call
+	run('parseShadcnThemeFromJson returns fresh object instances', () => {
+		const a = parseShadcnThemeFromJson('{}')
+		const b = parseShadcnThemeFromJson('{}')
+		if (a === b)
+			throw new Error(
+				'expected different top-level instances between calls'
+			)
+		if (a.light === b.light)
+			throw new Error('expected different light instances between calls')
+		if (a.dark === b.dark)
+			throw new Error('expected different dark instances between calls')
+	})
 }

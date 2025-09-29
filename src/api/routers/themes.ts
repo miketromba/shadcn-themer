@@ -12,83 +12,93 @@ import {
 	encodePaginationToken,
 	type PaginatedResponse
 } from '@/lib/pagination'
-import { parseShadcnThemeFromJson } from '@/lib/shadcnTheme'
-
-const listQuerySchema = z.object({
-	pageSize: z.string().optional(),
-	nextToken: z.string().optional()
-})
-
-const createSchema = z.object({
-	name: z.string().min(2).max(100).nullish(),
-	json: z.string().min(10).max(5000).nullish()
-})
+import {
+	parseShadcnThemeFromJson,
+	zShadcnTheme,
+	type ShadcnTheme
+} from '@/lib/shadcnTheme'
 
 export const themesRouter = new Hono()
 	// GET /themes?pageSize&nextToken
-	.get('/', zValidator('query', listQuerySchema), async c => {
-		const user = await getAuthUser(c)
-		const { pageSize: pageSizeParam, nextToken } = c.req.valid('query')
-		const limit = clampPageSize(
-			pageSizeParam ? parseInt(pageSizeParam, 10) : DEFAULT_PAGE_SIZE
-		)
-		const cursor = decodePaginationToken(nextToken)
-
-		const baseWhere = and(eq(schema.themes.user_id, user.id))
-		const whereClause = cursor
-			? and(
-					baseWhere,
-					lt(schema.themes.created_at, new Date(cursor.lastCreatedAt))
-			  )
-			: baseWhere
-
-		const rows = await db
-			.select({
-				id: schema.themes.id,
-				name: schema.themes.name,
-				json: schema.themes.json,
-				created_at: schema.themes.created_at,
-				star_count: sql<number>`COALESCE(COUNT(${schema.stars.theme_id}), 0)`
+	.get(
+		'/',
+		zValidator(
+			'query',
+			z.object({
+				pageSize: z.string().optional(),
+				nextToken: z.string().optional()
 			})
-			.from(schema.themes)
-			.leftJoin(schema.stars, eq(schema.stars.theme_id, schema.themes.id))
-			.where(whereClause)
-			.groupBy(
-				schema.themes.id,
-				schema.themes.name,
-				schema.themes.json,
-				schema.themes.created_at
+		),
+		async c => {
+			const user = await getAuthUser(c)
+			const { pageSize: pageSizeParam, nextToken } = c.req.valid('query')
+			const limit = clampPageSize(
+				pageSizeParam ? parseInt(pageSizeParam, 10) : DEFAULT_PAGE_SIZE
 			)
-			.orderBy(desc(schema.themes.created_at), desc(schema.themes.id))
-			.limit(limit + 1)
+			const cursor = decodePaginationToken(nextToken)
 
-		const hasMore = rows.length > limit
-		const sliced = rows.slice(0, limit)
+			const baseWhere = eq(schema.themes.user_id, user.id)
+			const whereClause = cursor
+				? and(
+						baseWhere,
+						lt(
+							schema.themes.created_at,
+							new Date(cursor.lastCreatedAt)
+						)
+				  )
+				: baseWhere
 
-		const items = sliced.map(r => ({
-			id: r.id,
-			name: r.name,
-			json: r.json,
-			created_at: r.created_at ? r.created_at.toISOString() : null,
-			star_count: Number(r.star_count) || 0
-		}))
+			const rows = await db
+				.select({
+					id: schema.themes.id,
+					name: schema.themes.name,
+					json: schema.themes.json,
+					created_at: schema.themes.created_at,
+					star_count: sql<number>`COALESCE(COUNT(${schema.stars.theme_id}), 0)`
+				})
+				.from(schema.themes)
+				.leftJoin(
+					schema.stars,
+					eq(schema.stars.theme_id, schema.themes.id)
+				)
+				.where(whereClause)
+				.groupBy(
+					schema.themes.id,
+					schema.themes.name,
+					schema.themes.json,
+					schema.themes.created_at
+				)
+				.orderBy(desc(schema.themes.created_at), desc(schema.themes.id))
+				.limit(limit + 1)
 
-		const nextPageToken =
-			hasMore && items.length
-				? encodePaginationToken({
-						lastId: items[items.length - 1].id,
-						lastCreatedAt:
-							items[items.length - 1].created_at ??
-							new Date(0).toISOString()
-				  })
-				: null
+			const hasMore = rows.length > limit
+			const sliced = rows.slice(0, limit)
 
-		return c.json<PaginatedResponse<(typeof items)[number]>>({
-			items,
-			nextToken: nextPageToken,
-			hasMore
-		})
-	})
+			const items = sliced.map(r => ({
+				id: r.id,
+				name: r.name,
+				json: r.json,
+				created_at: r.created_at ? r.created_at.toISOString() : null,
+				star_count: Number(r.star_count) || 0
+			}))
+
+			const nextPageToken =
+				hasMore && items.length
+					? encodePaginationToken({
+							lastId: items[items.length - 1].id,
+							lastCreatedAt:
+								items[items.length - 1].created_at ??
+								new Date(0).toISOString()
+					  })
+					: null
+
+			return c.json<PaginatedResponse<(typeof items)[number]>>({
+				items,
+				nextToken: nextPageToken,
+				hasMore
+			})
+		}
+	)
 
 	// GET /themes/:id - fetch single theme details
 	.get(
@@ -132,33 +142,82 @@ export const themesRouter = new Hono()
 			if (!rows.length) {
 				return c.json({ ok: false, error: 'Not found' }, 404)
 			}
-			const r = rows[0]
+			const row = rows[0]
+			const parsedTheme = parseShadcnThemeFromJson(row.json)
+			const rowClean = {
+				...row,
+				star_count: Number(row.star_count),
+				json: parsedTheme
+			}
+			return c.json({ theme: rowClean })
+		}
+	)
 
-			return c.json({ ...r, star_count: Number(r.star_count) })
+	// PUT /themes/:id - update theme json
+	.put(
+		'/:id',
+		zValidator('param', z.object({ id: z.uuid() })),
+		zValidator(
+			'json',
+			z.object({
+				json: zShadcnTheme
+			})
+		),
+		async c => {
+			const user = await getAuthUser(c)
+			const { id } = c.req.valid('param')
+			const { json } = c.req.valid('json')
+
+			const res = await db
+				.update(schema.themes)
+				.set({ json, updated_at: new Date() })
+				.where(
+					and(
+						eq(schema.themes.id, id),
+						eq(schema.themes.user_id, user.id)
+					)
+				)
+				.returning({ id: schema.themes.id })
+
+			if (!res.length) {
+				return c.json({ ok: false, error: 'Not found' }, 404)
+			}
+
+			return c.json({ ok: true })
 		}
 	)
 
 	// POST /themes - create theme
-	.post('/', zValidator('json', createSchema), async c => {
-		const user = await getAuthUser(c)
-		if (!process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET) {
-			return c.json(
-				{ ok: false, error: 'Storage bucket not configured' },
-				500
-			)
-		}
-		const { name, json } = c.req.valid('json')
-		const [theme] = await db
-			.insert(schema.themes)
-			.values({
-				user_id: user.id,
-				name: name || 'Untitled theme',
-				json: parseShadcnThemeFromJson(json || '{}')
+	.post(
+		'/',
+		zValidator(
+			'json',
+			z.object({
+				name: z.string().min(2).max(100).nullish(),
+				json: z.string().min(10).max(5000).nullish()
 			})
-			.returning()
+		),
+		async c => {
+			const user = await getAuthUser(c)
+			if (!process.env.NEXT_PUBLIC_SUPABASE_STORAGE_BUCKET) {
+				return c.json(
+					{ ok: false, error: 'Storage bucket not configured' },
+					500
+				)
+			}
+			const { name, json } = c.req.valid('json')
+			const [theme] = await db
+				.insert(schema.themes)
+				.values({
+					user_id: user.id,
+					name: name || 'Untitled theme',
+					json: parseShadcnThemeFromJson(json || '{}')
+				})
+				.returning()
 
-		return c.json<{ ok: true; id: string }>({ ok: true, id: theme.id }, 201)
-	})
+			return c.json({ ok: true, id: theme.id }, 201)
+		}
+	)
 
 	// POST /themes/:id/star - star a theme for current user
 	.post(

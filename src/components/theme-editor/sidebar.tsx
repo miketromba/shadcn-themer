@@ -15,8 +15,6 @@ import {
 	parseOKLCH,
 	toOKLCHString
 } from '@/components/theme-editor/oklch-color-picker'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Sun, Moon } from 'lucide-react'
 
 const GROUPS: Array<{ id: string; title: string; keys: ColorKey[] }> = [
 	{
@@ -116,88 +114,97 @@ function ColorRow({
 }
 
 export function ThemeEditorSidebar() {
-	const { theme, updateVar, previewMode, setPreviewMode } = useThemeData()
-
+	const { theme, updateVar, previewMode } = useThemeData()
 	const [editingKey, setEditingKey] = React.useState<ColorKey | null>(null)
-
 	const defaults = React.useMemo(() => getDefaultShadcnTheme(), [])
 
 	return (
 		<ScrollArea className="h-full" tableFix>
 			<div className="p-3 space-y-3">
-				<Accordion type="multiple" defaultValue={GROUPS.map(g => g.id)}>
-					{GROUPS.map(group => (
-						<AccordionItem
-							key={group.id}
-							value={group.id}
-							className="border-none"
-						>
-							<AccordionTrigger className="py-2 text-sm font-semibold">
-								{group.title}
-							</AccordionTrigger>
-							<AccordionContent>
-								<div>
-									{GROUPS.find(
-										g => g.id === group.id
-									)!.keys.map(k => {
-										const stored =
-											(theme[previewMode]?.[k] as
-												| string
-												| undefined) || ''
-										const fallback =
-											(defaults[previewMode]?.[
-												k
-											] as string) || ''
-										const displayValue = stored || fallback
-										return (
-											<React.Fragment key={k}>
-												<ColorRow
-													keyName={k}
-													value={displayValue}
-													onClick={() => {
-														setEditingKey(prev =>
-															prev === k
-																? null
-																: k
-														)
-													}}
-												/>
-												{editingKey === k ? (
-													<div className="mt-2 mb-4 pl-2">
-														<OklchColorPicker
-															className="w-[220px] mx-auto"
-															value={parseOKLCH(
-																displayValue
-															)}
-															initialColor={
-																displayValue
-															}
-															onChange={v => {
-																const next =
-																	toOKLCHString(
-																		v.l,
-																		v.c,
-																		v.h
+				{!theme ? (
+					<div className="text-sm text-muted-foreground">
+						Loading...
+					</div>
+				) : (
+					<Accordion
+						type="multiple"
+						defaultValue={GROUPS.map(g => g.id)}
+					>
+						{GROUPS.map(group => (
+							<AccordionItem
+								key={group.id}
+								value={group.id}
+								className="border-none"
+							>
+								<AccordionTrigger className="py-2 text-sm font-semibold">
+									{group.title}
+								</AccordionTrigger>
+								<AccordionContent>
+									<div>
+										{GROUPS.find(
+											g => g.id === group.id
+										)!.keys.map(k => {
+											const stored =
+												(theme[previewMode]?.[k] as
+													| string
+													| undefined) || ''
+											const fallback =
+												(defaults[previewMode]?.[
+													k
+												] as string) || ''
+											const displayValue =
+												stored || fallback
+											return (
+												<React.Fragment key={k}>
+													<ColorRow
+														keyName={k}
+														value={displayValue}
+														onClick={() => {
+															setEditingKey(
+																prev =>
+																	prev === k
+																		? null
+																		: k
+															)
+														}}
+													/>
+													{editingKey === k ? (
+														<div className="mt-2 mb-4 pl-2">
+															<OklchColorPicker
+																className="w-[220px] mx-auto"
+																value={parseOKLCH(
+																	displayValue
+																)}
+																initialColor={
+																	displayValue
+																}
+																onChange={v => {
+																	const next =
+																		toOKLCHString(
+																			v.l,
+																			v.c,
+																			v.h
+																		)
+																	updateVar(
+																		k,
+																		next,
+																		{
+																			mode: previewMode
+																		}
 																	)
-																updateVar(
-																	k,
-																	next,
-																	{
-																		mode: previewMode
-																	}
-																)
-															}}
-														/>
-													</div>
-												) : null}
-											</React.Fragment>
-										)
-									})}
-								</div>
-							</AccordionContent>
-						</AccordionItem>
-					))}
-				</Accordion>
+																}}
+															/>
+														</div>
+													) : null}
+												</React.Fragment>
+											)
+										})}
+									</div>
+								</AccordionContent>
+							</AccordionItem>
+						))}
+					</Accordion>
+				)}
 			</div>
 		</ScrollArea>
 	)

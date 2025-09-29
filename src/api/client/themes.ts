@@ -30,6 +30,13 @@ export type StarThemeResponse = InferResponseType<
 >
 export type StarThemeSuccess = { ok: true; star_count: number }
 
+export type UpdateThemeResponse = InferResponseType<
+	(typeof apiClient.api.themes)[':id']['$put']
+>
+export type UpdateThemeInput = InferRequestType<
+	(typeof apiClient.api.themes)[':id']['$put']
+>['json']
+
 export function useThemesList({
 	pageSize = DEFAULT_PAGE_SIZE
 }: { pageSize?: number } = {}) {
@@ -60,21 +67,21 @@ export function useCreateTheme() {
 				const json = await res
 					.json()
 					.catch(() => ({ error: 'Unknown error' }))
-				throw new Error((json as any).error || 'Failed to create theme')
+				throw new Error(json.error || 'Failed to create theme')
 			}
 			return await res.json()
 		},
 		onSuccess: async data => {
 			await qc.invalidateQueries({ queryKey: ['themes'] })
-			if ((data as any).ok && (data as any).id) {
-				router.push(`/app/themes/${(data as any).id}`)
+			if (data.ok && 'id' in data) {
+				router.push(`/app/themes/${data.id}`)
 			}
 		}
 	})
 }
 
 export function useTheme(id: string | undefined) {
-	return useQuery<ThemeResponse>({
+	return useQuery({
 		queryKey: ['theme', id],
 		queryFn: async () => {
 			if (!id) throw new Error('Missing id')
@@ -181,6 +188,35 @@ export function useStarTheme() {
 
 			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
 				prev ? { ...prev, star_count: data.star_count } : prev
+			)
+		}
+	})
+}
+
+export function useUpdateTheme() {
+	const qc = useQueryClient()
+	return useMutation<
+		UpdateThemeResponse,
+		Error,
+		{ id: string; json: UpdateThemeInput['json'] }
+	>({
+		mutationFn: async ({ id, json }) => {
+			const res = await apiClient.api.themes[':id'].$put({
+				param: { id },
+				json: { json }
+			})
+			if (!res.ok) {
+				const body = await res
+					.json()
+					.catch(() => ({ error: 'Unknown error' }))
+				throw new Error((body as any).error || 'Failed to update theme')
+			}
+			return await res.json()
+		},
+		onSuccess: (_data, { id, json }) => {
+			// Replace ONLY the cached single theme value to avoid re-fetch loop
+			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
+				prev ? { ...prev, json } : prev
 			)
 		}
 	})
