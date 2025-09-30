@@ -347,13 +347,45 @@ export const themesRouter = new Hono()
 			'json',
 			z.object({
 				name: z.string().min(2).max(100).nullish(),
-				json: z.string().min(10).max(5000).nullish()
+				json: z.string().min(10).max(5000).nullish(),
+				forkId: z.uuid().nullish()
 			})
 		),
 		async c => {
 			const user = await getAuthUser(c)
-			const { name, json } = c.req.valid('json')
-			const parsedTheme = parseShadcnThemeFromJson(json || '{}')
+			const { name, json, forkId } = c.req.valid('json')
+
+			let parsedTheme = parseShadcnThemeFromJson(json || '{}')
+			let forkedFrom: string | null = null
+			let themeName = name || 'Untitled theme'
+
+			// If forking, fetch the source theme
+			if (forkId) {
+				const sourceTheme = await db
+					.select({
+						json: schema.themes.json,
+						name: schema.themes.name
+					})
+					.from(schema.themes)
+					.where(eq(schema.themes.id, forkId))
+					.limit(1)
+
+				if (!sourceTheme.length) {
+					return c.json(
+						{ ok: false, error: 'Source theme not found' },
+						404
+					)
+				}
+
+				// Use the source theme's JSON
+				parsedTheme = parseShadcnThemeFromJson(sourceTheme[0].json)
+				forkedFrom = forkId
+
+				// If no custom name provided, use "Fork of [original name]"
+				if (!name) {
+					themeName = `Fork of ${sourceTheme[0].name}`
+				}
+			}
 
 			// Calculate the color bucket from the theme
 			const { bucket } = themeToBucket(parsedTheme)
@@ -362,9 +394,10 @@ export const themesRouter = new Hono()
 				.insert(schema.themes)
 				.values({
 					user_id: user.id,
-					name: name || 'Untitled theme',
+					name: themeName,
 					json: parsedTheme,
-					color_bucket: bucket
+					color_bucket: bucket,
+					forked_from: forkedFrom
 				})
 				.returning()
 

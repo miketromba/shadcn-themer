@@ -1,6 +1,4 @@
 # Todo
-
-- Fork themes
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
 - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 
@@ -13,6 +11,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Fork themes
 - Allow viewing theme in unauthenticated state (show fork button etc which pops up auth modal)
 - Add theme page (seperate from edit page which remains protected)
 - Toggle light/dark preview mode in theme listings

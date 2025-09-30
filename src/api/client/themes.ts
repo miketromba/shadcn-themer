@@ -104,6 +104,28 @@ export function useCreateTheme() {
 	})
 }
 
+export function useForkTheme() {
+	const qc = useQueryClient()
+	const router = useRouter()
+	return useMutation({
+		mutationFn: async ({ forkId }: { forkId: string }) => {
+			const res = await apiClient.api.themes.$post({
+				json: { forkId }
+			})
+			if (!res.ok) {
+				throw new Error('Failed to fork theme')
+			}
+			return await res.json()
+		},
+		onSuccess: async data => {
+			await qc.invalidateQueries({ queryKey: ['themes'] })
+			if (data.ok && 'id' in data) {
+				router.push(`/themes/${data.id}/edit`)
+			}
+		}
+	})
+}
+
 export function useTheme(id: string | undefined) {
 	return useQuery({
 		queryKey: ['theme', id],
