@@ -3,22 +3,35 @@
 import { cn } from '@/lib/utils'
 import Link from 'next/link'
 
-export function SiteLogo({ className }: { className?: string }) {
+export function SiteLogo({
+	className,
+	alwaysShowColors = false
+}: {
+	className?: string
+	alwaysShowColors?: boolean
+}) {
+	const gradientClasses = alwaysShowColors
+		? 'text-transparent bg-gradient-to-r bg-clip-text animate-gradient-move'
+		: 'group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:animate-gradient-move'
+
+	const textColor = alwaysShowColors ? 'transparent' : 'white'
+	const textFillColor = alwaysShowColors ? 'transparent' : 'white'
+
 	return (
 		<Link href="/" className={cn('group', className)}>
 			<span
 				className="font-semibold text-base font-mono transition-colors duration-200 relative"
-				style={{ letterSpacing: '0.04em', color: 'white' }}
+				style={{ letterSpacing: '0.04em', color: textColor }}
 			>
 				<span
-					className="group-hover:text-transparent group-hover:bg-gradient-to-r group-hover:bg-clip-text group-hover:animate-gradient-move"
+					className={gradientClasses}
 					style={{
-						color: 'white',
+						color: textColor,
 						backgroundImage:
 							'linear-gradient(90deg, #FFD1EC, #FFE3B3, #FFFFA8, #B8FFD9, #B8E6FF, #D1B8FF, #FFB8E6)',
 						backgroundSize: '200% 200%',
 						WebkitBackgroundClip: 'text',
-						WebkitTextFillColor: 'white',
+						WebkitTextFillColor: textFillColor,
 						transition: 'color 0.2s'
 					}}
 				>
@@ -35,6 +48,9 @@ export function SiteLogo({ className }: { className?: string }) {
 						100% {
 							background-position: 0% 50%;
 						}
+					}
+					.animate-gradient-move {
+						animation: gradient-move 2s ease-in-out infinite;
 					}
 					.group:hover .group-hover\\:animate-gradient-move {
 						animation: gradient-move 2s ease-in-out infinite;
