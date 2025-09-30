@@ -16,6 +16,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Fix tasks example in light mode - text doesnt render well in the data table
 - Add favicon
 - Design + add good logo
 - Add google analytics

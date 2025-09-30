@@ -30,7 +30,7 @@ export default function ExamplesSwitcher({
 				{rightChildren}
 			</div>
 			<ThemedScope>
-				<div className="overflow-hidden bg-background p-3 rounded-lg">
+				<div className="overflow-hidden bg-background text-foreground p-3 rounded-lg">
 					<div className="w-[133%] scale-75 -translate-x-1/8 -translate-y-1/8 overflow-hidden">
 						<TabsContent value="cards">
 							<CardsDemo />
