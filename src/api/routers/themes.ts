@@ -26,23 +26,15 @@ export const themesRouter = new Hono()
 			})
 		),
 		async c => {
-			const user = await getAuthUser(c)
 			const { pageSize: pageSizeParam, nextToken } = c.req.valid('query')
 			const limit = clampPageSize(
 				pageSizeParam ? parseInt(pageSizeParam, 10) : DEFAULT_PAGE_SIZE
 			)
 			const cursor = decodePaginationToken(nextToken)
 
-			const baseWhere = eq(schema.themes.user_id, user.id)
 			const whereClause = cursor
-				? and(
-						baseWhere,
-						lt(
-							schema.themes.created_at,
-							new Date(cursor.lastCreatedAt)
-						)
-				  )
-				: baseWhere
+				? lt(schema.themes.created_at, new Date(cursor.lastCreatedAt))
+				: sql`true`
 
 			const rows = await db
 				.select({
@@ -50,9 +42,15 @@ export const themesRouter = new Hono()
 					name: schema.themes.name,
 					json: schema.themes.json,
 					created_at: schema.themes.created_at,
-					star_count: schema.themes.star_count
+					star_count: schema.themes.star_count,
+					version: schema.themes.version,
+					username: schema.profiles.username
 				})
 				.from(schema.themes)
+				.innerJoin(
+					schema.profiles,
+					eq(schema.profiles.id, schema.themes.user_id)
+				)
 				.where(whereClause)
 				.orderBy(desc(schema.themes.created_at), desc(schema.themes.id))
 				.limit(limit + 1)
@@ -65,7 +63,9 @@ export const themesRouter = new Hono()
 				name: r.name,
 				json: r.json,
 				created_at: r.created_at ? r.created_at.toISOString() : null,
-				star_count: Number(r.star_count) || 0
+				star_count: Number(r.star_count) || 0,
+				version: Number(r.version) || 1,
+				username: r.username ?? null
 			}))
 
 			const nextPageToken =
@@ -146,8 +146,16 @@ export const themesRouter = new Hono()
 		'/:id',
 		zValidator('param', z.object({ id: z.string().uuid() })),
 		async c => {
-			const user = await getAuthUser(c)
 			const { id } = c.req.valid('param')
+
+			// Get user if authenticated (optional)
+			let userId: string | null = null
+			try {
+				const user = await getAuthUser(c)
+				userId = user.id
+			} catch {
+				// Not authenticated, continue without user
+			}
 
 			const rows = await db
 				.select({
@@ -158,15 +166,13 @@ export const themesRouter = new Hono()
 					created_at: schema.themes.created_at,
 					updated_at: schema.themes.updated_at,
 					star_count: schema.themes.star_count,
-					is_starred: sql<boolean>`EXISTS (SELECT 1 FROM ${schema.stars} AS s WHERE s.theme_id = ${schema.themes.id} AND s.user_id = ${user.id})`
+					version: schema.themes.version,
+					is_starred: userId
+						? sql<boolean>`EXISTS (SELECT 1 FROM ${schema.stars} AS s WHERE s.theme_id = ${schema.themes.id} AND s.user_id = ${userId})`
+						: sql<boolean>`false`
 				})
 				.from(schema.themes)
-				.where(
-					and(
-						eq(schema.themes.id, id),
-						eq(schema.themes.user_id, user.id)
-					)
-				)
+				.where(eq(schema.themes.id, id))
 				.limit(1)
 
 			if (!rows.length) {
@@ -201,7 +207,10 @@ export const themesRouter = new Hono()
 
 			const res = await db
 				.update(schema.themes)
-				.set({ json })
+				.set({
+					json,
+					version: sql`${schema.themes.version} + 1`
+				})
 				.where(
 					and(
 						eq(schema.themes.id, id),

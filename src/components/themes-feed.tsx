@@ -15,11 +15,12 @@ export function ThemesFeed() {
 		fetchNextPage,
 		hasNextPage,
 		isFetchingNextPage
-	} = useThemesList()
+	} = useThemesList({
+		pageSize: 16
+	})
 
 	const items = React.useMemo(() => {
-		return (data?.pages.flatMap(p => p.items ?? [])?.filter(Boolean) ??
-			[]) as any[]
+		return data?.pages.flatMap(p => p.items ?? [])?.filter(Boolean) ?? []
 	}, [data])
 
 	// Intersection Observer for infinite scroll
@@ -56,7 +57,7 @@ export function ThemesFeed() {
 
 	return (
 		<div className="space-y-4">
-			<ThemesList items={items as any} />
+			<ThemesList items={items} />
 			<div className="flex justify-center">
 				{hasNextPage ? (
 					<div ref={loadMoreRef}>

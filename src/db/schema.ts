@@ -21,6 +21,8 @@ export const themes = pgTable('themes', {
 	json: jsonb('json').notNull(),
 	forked_from: uuid('forked_from'),
 	star_count: integer('star_count').default(0).notNull(),
+	version: integer('version').default(1).notNull(),
+	screenshot_version: integer('screenshot_version').default(0).notNull(),
 	created_at: timestamp('created_at', {
 		mode: 'date',
 		withTimezone: true

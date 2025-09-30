@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { pingRouter } from './ping'
 import { themesRouter } from './themes'
 import { usersRouter } from './users'
+import { screenshotsRouter } from './screenshots'
 
 // Create the main API router
 const api = new Hono().basePath('/api')
@@ -38,6 +39,7 @@ export const routes = api
 	.route('/ping', pingRouter)
 	.route('/themes', themesRouter)
 	.route('/user', usersRouter)
+	.route('/screenshots', screenshotsRouter)
 // .route('/other', otherRouter)
 
 // Export the Hono app

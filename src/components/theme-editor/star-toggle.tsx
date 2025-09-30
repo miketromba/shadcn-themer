@@ -6,16 +6,22 @@ import { Star } from 'lucide-react'
 import { useTheme } from '@/api/client/themes'
 import { useStarTheme, useUnstarTheme } from '@/api/client/themes'
 
-export function StarToggle({ id }: { id: string }) {
+export function StarToggle({
+	id,
+	onClick
+}: {
+	id: string
+	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
+}) {
 	const { data } = useTheme(id)
 	const star = useStarTheme()
 	const unstar = useUnstarTheme()
 
 	const starCount =
-		typeof (data as any)?.theme?.star_count === 'number'
-			? ((data as any).theme.star_count as number)
+		typeof data?.theme?.star_count === 'number'
+			? (data.theme.star_count as number)
 			: 0
-	const isStarred = Boolean((data as any)?.theme?.is_starred)
+	const isStarred = Boolean(data?.theme?.is_starred)
 
 	const isPending = star.isPending || unstar.isPending
 
@@ -34,7 +40,10 @@ export function StarToggle({ id }: { id: string }) {
 				type="button"
 				variant="ghost"
 				aria-label={isStarred ? 'Unstar' : 'Star'}
-				onClick={toggle}
+				onClick={e => {
+					toggle()
+					onClick?.(e)
+				}}
 				size="sm"
 				className={
 					isStarred

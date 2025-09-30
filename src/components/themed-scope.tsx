@@ -34,8 +34,16 @@ export function ThemedScope({
 	const style = React.useMemo(() => varsToInlineStyle(applied), [applied])
 	const wrapperClass = previewMode === 'dark' ? 'dark' : undefined
 
+	// Mark when theme is ready for screenshot service
+	const isThemeReady = effectiveTheme !== null && applied !== undefined
+
 	return (
-		<div className={wrapperClass} style={style} suppressHydrationWarning>
+		<div
+			className={wrapperClass}
+			style={style}
+			data-theme-ready={isThemeReady ? 'true' : 'false'}
+			suppressHydrationWarning
+		>
 			{children}
 		</div>
 	)

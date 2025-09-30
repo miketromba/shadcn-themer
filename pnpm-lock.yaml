@@ -152,9 +152,6 @@ importers:
       hono:
         specifier: ^4.9.6
         version: 4.9.6
-      html-to-image:
-        specifier: ^1.11.13
-        version: 1.11.13
       input-otp:
         specifier: ^1.4.2
         version: 1.4.2(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
@@ -2679,9 +2676,6 @@ packages:
   hono@4.9.6:
     resolution: {integrity: sha512-doVjXhSFvYZ7y0dNokjwwSahcrAfdz+/BCLvAMa/vHLzjj8+CFyV5xteThGUsKdkaasgN+gF2mUxao+SGLpUeA==}
     engines: {node: '>=16.9.0'}
-
-  html-to-image@1.11.13:
-    resolution: {integrity: sha512-cuOPoI7WApyhBElTTb9oqsawRvZ0rHhaHwghRLlTuffoD1B2aDemlCruLeZrUIIdvG7gs9xeELEPm6PhuASqrg==}
 
   https-proxy-agent@7.0.6:
     resolution: {integrity: sha512-vK9P5/iUfdl95AI+JVyUuIcVtd4ofvtrOr3HNtM2yxC9bnMbEdp3x01OhQNnjb8IJYi38VlTE3mBXwcfvywuSw==}
@@ -6039,8 +6033,6 @@ snapshots:
       function-bind: 1.1.2
 
   hono@4.9.6: {}
-
-  html-to-image@1.11.13: {}
 
   https-proxy-agent@7.0.6:
     dependencies:

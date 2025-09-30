@@ -36,6 +36,13 @@
       "when": 1759179922595,
       "tag": "0004_cultured_chameleon",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1759253294225,
+      "tag": "0005_soft_ghost_rider",
+      "breakpoints": true
     }
   ]
 }

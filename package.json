@@ -12,7 +12,9 @@
     "db:generate:custom": "drizzle-kit generate --config=./src/db/drizzle.config.ts --custom",
     "db:migrate": "drizzle-kit migrate --config=./src/db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config=./src/db/drizzle.config.ts",
-    "db:seed": "tsx --env-file=.env src/scripts/seed-db.ts"
+    "db:seed": "tsx --env-file=.env src/scripts/seed-db.ts",
+    "postinstall": "sh -c 'if [ \"$NODE_ENV\" != \"production\" ]; then if [ ! -d .screenshot-service ]; then git clone https://github.com/miketromba/screenshot-service.git .screenshot-service; fi && cd .screenshot-service && pnpm docker:build; fi'",
+    "ss:dev": "docker run --rm -it --add-host=host.docker.internal:host-gateway -p 3006:3000 -e NODE_ENV=development -e AUTH_TOKEN=dev-token -e HOST_WHITELIST=host.docker.internal screenshot-service"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.12",
@@ -63,7 +65,6 @@
     "drizzle-orm": "^0.44.5",
     "embla-carousel-react": "^8.6.0",
     "hono": "^4.9.6",
-    "html-to-image": "^1.11.13",
     "input-otp": "^1.4.2",
     "lucide-react": "^0.511.0",
     "next": "latest",

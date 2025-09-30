@@ -32,10 +32,12 @@ const PREVIEW_MODE_STORAGE_KEY = 'shadcn-themer-previewMode'
 
 export function ThemeDataProvider({
 	children,
-	id
+	id,
+	initialPreviewMode
 }: {
 	children: React.ReactNode
 	id?: string
+	initialPreviewMode?: 'light' | 'dark'
 }) {
 	const { data } = useThemeQuery(id)
 	const updateTheme = useUpdateTheme()
@@ -45,6 +47,13 @@ export function ThemeDataProvider({
 	const [theme, setTheme] = React.useState<ShadcnTheme | null>(null)
 	const [previewMode, setPreviewMode] = React.useState<'light' | 'dark'>(
 		() => {
+			// Prefer explicitly provided initial mode if valid
+			if (
+				initialPreviewMode === 'light' ||
+				initialPreviewMode === 'dark'
+			) {
+				return initialPreviewMode
+			}
 			if (typeof window !== 'undefined') {
 				try {
 					const saved = window.localStorage.getItem(
