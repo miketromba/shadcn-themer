@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
+import { GoogleAnalytics } from '@next/third-parties/google'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
@@ -52,6 +53,7 @@ export default function RootLayout({
 						</AuthModalProvider>
 					</QueryProvider>
 				</ThemeProvider>
+				<GoogleAnalytics gaId="G-C680Z7LJTK" />
 			</body>
 		</html>
 	)

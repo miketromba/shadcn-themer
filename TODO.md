@@ -1,5 +1,4 @@
 # Todo
-- Add google analytics
 - Better theme previews
     - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
@@ -17,6 +16,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Add google analytics
 - Add TOS/privacy/contact
 - Add footer to site
 - Fork themes
