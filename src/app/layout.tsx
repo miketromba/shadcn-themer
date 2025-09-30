@@ -3,6 +3,7 @@ import { Geist } from 'next/font/google'
 import { ThemeProvider } from 'next-themes'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
+import { SiteFooter } from '@/components/site-footer'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
 import { AuthModalProvider } from '@/components/providers/auth-modal-provider'
@@ -44,6 +45,7 @@ export default function RootLayout({
 								<main className="min-h-screen flex flex-col">
 									<SiteHeader />
 									<div className="flex-1">{children}</div>
+									<SiteFooter />
 								</main>
 								<AuthModal />
 							</ThemeDataProvider>
