@@ -16,6 +16,8 @@
 - Add to mike.gg list ?
 
 # Done
+- Add favicon
+- Design + add good logo
 - Add google analytics
 - Add TOS/privacy/contact
 - Add footer to site

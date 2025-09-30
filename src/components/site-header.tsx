@@ -25,7 +25,7 @@ export function SiteHeader() {
 		<div className="border-b">
 			<nav className="container mx-auto h-16 flex items-center px-4 sm:px-8 text-sm">
 				<div className="flex-1">
-					<SiteLogo alwaysShowColors={true} />
+					<SiteLogo />
 				</div>
 				<div className="flex items-center gap-1 sm:gap-2">
 					<Button

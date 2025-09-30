@@ -20,7 +20,7 @@ export function SiteFooter() {
 				<div className="grid gap-8 sm:grid-cols-2">
 					{/* Logo and Description */}
 					<div>
-						<SiteLogo alwaysShowColors={true} />
+						<SiteLogo />
 						<p className="text-sm mt-3 text-muted-foreground max-w-xs">
 							Create, customize, and share beautiful themes for
 							shadcn/ui. Build your perfect color palette with our
