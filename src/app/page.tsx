@@ -21,29 +21,24 @@ export default function Home() {
 						Discover and create beautiful themes for shadcn/ui
 					</p>
 				</div>
-				<div className="flex items-center gap-3">
-					<PreviewModeToggle />
-					<Button
-						onClick={() => createTheme({})}
-						disabled={isCreating}
-					>
-						{isCreating ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Creating...
-							</>
-						) : (
-							'New Theme'
-						)}
-					</Button>
-				</div>
+				<Button onClick={() => createTheme({})} disabled={isCreating}>
+					{isCreating ? (
+						<>
+							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+							Creating...
+						</>
+					) : (
+						'New Theme'
+					)}
+				</Button>
 			</div>
 
-			<div className="mb-6">
+			<div className="mb-6 flex items-end justify-between gap-4">
 				<ColorBucketFilter
 					selectedBuckets={selectedBuckets}
 					onBucketsChange={setSelectedBuckets}
 				/>
+				<PreviewModeToggle />
 			</div>
 
 			<ThemesFeed
