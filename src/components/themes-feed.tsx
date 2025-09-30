@@ -8,10 +8,12 @@ import { Loader2 } from 'lucide-react'
 
 export function ThemesFeed({
 	sortBy = 'new',
-	username
+	username,
+	colorBuckets
 }: {
 	sortBy?: 'new' | 'popular'
 	username?: string
+	colorBuckets?: string[]
 }) {
 	const {
 		data,
@@ -24,7 +26,8 @@ export function ThemesFeed({
 	} = useThemesList({
 		pageSize: 16,
 		sortBy,
-		username
+		username,
+		colorBuckets
 	})
 
 	const items = React.useMemo(() => {

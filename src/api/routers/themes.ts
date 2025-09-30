@@ -13,9 +13,10 @@ import {
 	type PaginatedResponse
 } from '@/lib/pagination'
 import { parseShadcnThemeFromJson, zShadcnTheme } from '@/lib/shadcnTheme'
+import { themeToBucket } from '@/lib/shadcnThemeToColorBucket'
 
 export const themesRouter = new Hono()
-	// GET /themes?pageSize&nextToken&sortBy&username
+	// GET /themes?pageSize&nextToken&sortBy&username&colorBuckets
 	.get(
 		'/',
 		zValidator(
@@ -24,7 +25,8 @@ export const themesRouter = new Hono()
 				pageSize: z.string().optional(),
 				nextToken: z.string().optional(),
 				sortBy: z.enum(['new', 'popular']).optional().default('new'),
-				username: z.string().optional()
+				username: z.string().optional(),
+				colorBuckets: z.string().optional() // comma-separated bucket values
 			})
 		),
 		async c => {
@@ -32,20 +34,34 @@ export const themesRouter = new Hono()
 				pageSize: pageSizeParam,
 				nextToken,
 				sortBy,
-				username
+				username,
+				colorBuckets
 			} = c.req.valid('query')
 			const limit = clampPageSize(
 				pageSizeParam ? parseInt(pageSizeParam, 10) : DEFAULT_PAGE_SIZE
 			)
 			const cursor = decodePaginationToken(nextToken)
 
-			// Build where clause based on cursor, sortBy, and username
+			// Build where clause based on cursor, sortBy, username, and color buckets
 			let whereClause: SQL | undefined
 			const whereClauses: SQL[] = []
 
 			// Add username filter if provided
 			if (username) {
 				whereClauses.push(eq(schema.profiles.username, username))
+			}
+
+			// Add color bucket filter if provided
+			if (colorBuckets) {
+				const buckets = colorBuckets.split(',').filter(Boolean)
+				if (buckets.length > 0) {
+					whereClauses.push(
+						sql`${schema.themes.color_bucket} IN (${sql.join(
+							buckets.map(b => sql`${b}`),
+							sql`, `
+						)})`
+					)
+				}
 			}
 
 			// Add cursor condition
@@ -258,10 +274,14 @@ export const themesRouter = new Hono()
 			const { id } = c.req.valid('param')
 			const { json } = c.req.valid('json')
 
+			// Calculate the color bucket from the theme
+			const { bucket } = themeToBucket(json)
+
 			const res = await db
 				.update(schema.themes)
 				.set({
 					json,
+					color_bucket: bucket,
 					version: sql`${schema.themes.version} + 1`
 				})
 				.where(
@@ -327,12 +347,18 @@ export const themesRouter = new Hono()
 		async c => {
 			const user = await getAuthUser(c)
 			const { name, json } = c.req.valid('json')
+			const parsedTheme = parseShadcnThemeFromJson(json || '{}')
+
+			// Calculate the color bucket from the theme
+			const { bucket } = themeToBucket(parsedTheme)
+
 			const [theme] = await db
 				.insert(schema.themes)
 				.values({
 					user_id: user.id,
 					name: name || 'Untitled theme',
-					json: parseShadcnThemeFromJson(json || '{}')
+					json: parsedTheme,
+					color_bucket: bucket
 				})
 				.returning()
 

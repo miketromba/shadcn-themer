@@ -1,12 +1,15 @@
 'use client'
 
+import * as React from 'react'
 import { ThemesFeed } from '@/components/themes-feed'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useCreateTheme } from '@/api/client/themes'
+import { ColorBucketFilter } from '@/components/color-bucket-filter'
 
 export default function Home() {
 	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
+	const [selectedBuckets, setSelectedBuckets] = React.useState<string[]>([])
 
 	return (
 		<div className="container mx-auto px-8 py-6">
@@ -28,7 +31,20 @@ export default function Home() {
 					)}
 				</Button>
 			</div>
-			<ThemesFeed sortBy="popular" />
+
+			<div className="mb-6">
+				<ColorBucketFilter
+					selectedBuckets={selectedBuckets}
+					onBucketsChange={setSelectedBuckets}
+				/>
+			</div>
+
+			<ThemesFeed
+				sortBy="popular"
+				colorBuckets={
+					selectedBuckets.length > 0 ? selectedBuckets : undefined
+				}
+			/>
 		</div>
 	)
 }

@@ -43,6 +43,13 @@
       "when": 1759253294225,
       "tag": "0005_soft_ghost_rider",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1759259941570,
+      "tag": "0006_first_boomer",
+      "breakpoints": true
     }
   ]
 }

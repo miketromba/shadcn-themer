@@ -1,0 +1,1 @@
+ALTER TABLE "themes" ADD COLUMN "color_bucket" text;

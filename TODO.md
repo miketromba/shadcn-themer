@@ -1,6 +1,5 @@
 # Todo
 - Theme list filters / sorting
-    - Filter by primary color (like 10 options)
     - Toggle light/dark preview mode in theme listings
 - Fork themes
 - Allow viewing theme in unauthenticated state (show fork button etc which pops up auth modal)
@@ -15,6 +14,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Filter by primary color (like 10 options)
 - Add user themes page
 - Impl theme list sorting (new, popular) and set popular as default on client
 - Styled theme cards (include star btn in them)
