@@ -1,5 +1,6 @@
 @import "tailwindcss";
 @plugin "tailwindcss-animate";
+@plugin "@tailwindcss/typography";
 
 /* Tailwind v4 dark variant helper used by shadcn */
 @custom-variant dark (&:is(.dark *));

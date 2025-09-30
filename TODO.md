@@ -1,18 +1,23 @@
 # Todo
-- Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
+- Add google analytics
+- Better theme previews
+    - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
-- Font customization
-- Border radius customization
-- Spaciousness customization? (padding, 3 settings maybe tight default loose)
+- Better theme customization
+    - Font customization
+    - Border radius customization
+    - Spaciousness customization? (padding, 3 settings maybe tight default loose)
+- SEO audit + improvement
+- Opengraph / twitter card
 
 # Low priority
 - Download/install via shadcn CLI (registry thing ?)
 - Polish UX
-- TOS/privacy/contact
 - Add to flamelab projects list
 - Add to mike.gg list ?
 
 # Done
+- Add TOS/privacy/contact
 - Add footer to site
 - Fork themes
 - Add plus icon to new theme btn

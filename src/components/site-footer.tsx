@@ -44,6 +44,12 @@ export function SiteFooter() {
 							>
 								Privacy Policy
 							</Link>
+							<Link
+								href="/contact"
+								className="text-sm text-muted-foreground hover:text-foreground transition-colors w-fit sm:ml-auto"
+							>
+								Contact Us
+							</Link>
 						</div>
 					</div>
 				</div>
