@@ -4,6 +4,7 @@ import * as React from 'react'
 import { StarToggle } from './theme-editor/star-toggle'
 import { useRouter } from 'next/navigation'
 import { ThemeScreenshot } from './theme-screenshot'
+import { useThemeData } from './providers/theme-data-provider'
 import Link from 'next/link'
 
 type ThemePreviewCardProps = {
@@ -20,6 +21,7 @@ export function ThemePreviewCard({
 	username
 }: ThemePreviewCardProps) {
 	const router = useRouter()
+	const { previewMode } = useThemeData()
 	return (
 		<div
 			key={id}
@@ -40,6 +42,7 @@ export function ThemePreviewCard({
 					<ThemeScreenshot
 						id={id}
 						version={version}
+						mode={previewMode}
 						width={600}
 						alt={name}
 					/>

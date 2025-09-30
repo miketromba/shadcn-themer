@@ -10,44 +10,12 @@ import {
 	SidebarFooter,
 	SidebarInset
 } from '@/components/ui/sidebar'
-import {
-	ThemeDataProvider,
-	useThemeData
-} from '@/components/providers/theme-data-provider'
-import { Moon, Sun } from 'lucide-react'
-import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
-import { Skeleton } from '@/components/ui/skeleton'
-import * as React from 'react'
+import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
+import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 import { use } from 'react'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-
-function ThemeToggle() {
-	const { previewMode, setPreviewMode } = useThemeData()
-	const [mounted, setMounted] = React.useState(false)
-	React.useEffect(() => setMounted(true), [])
-	if (!mounted) {
-		return <Skeleton className="h-9 w-[108px]" />
-	}
-	return (
-		<ToggleGroup
-			type="single"
-			value={previewMode}
-			onValueChange={v => {
-				if (v === 'light' || v === 'dark') setPreviewMode(v)
-			}}
-			className="shrink-0"
-		>
-			<ToggleGroupItem value="light" aria-label="Light">
-				<Sun className="size-4" />
-			</ToggleGroupItem>
-			<ToggleGroupItem value="dark" aria-label="Dark">
-				<Moon className="size-4" />
-			</ToggleGroupItem>
-		</ToggleGroup>
-	)
-}
 
 export default function ThemeLayout({
 	children,
@@ -75,7 +43,7 @@ export default function ThemeLayout({
 								All Themes
 							</Button>
 						</Link>
-						<ThemeToggle />
+						<PreviewModeToggle />
 					</SidebarHeader>
 					<SidebarContent>
 						{/* Theme editor */}

@@ -4,6 +4,7 @@ import { ThemesFeed } from '@/components/themes-feed'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useCreateTheme } from '@/api/client/themes'
+import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 import { use } from 'react'
 
 interface PageProps {
@@ -27,16 +28,22 @@ export default function UserThemesPage({ params }: PageProps) {
 						Browse themes created by @{username}
 					</p>
 				</div>
-				<Button onClick={() => createTheme({})} disabled={isCreating}>
-					{isCreating ? (
-						<>
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							Creating...
-						</>
-					) : (
-						'New Theme'
-					)}
-				</Button>
+				<div className="flex items-center gap-3">
+					<PreviewModeToggle />
+					<Button
+						onClick={() => createTheme({})}
+						disabled={isCreating}
+					>
+						{isCreating ? (
+							<>
+								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+								Creating...
+							</>
+						) : (
+							'New Theme'
+						)}
+					</Button>
+				</div>
 			</div>
 			<ThemesFeed sortBy="new" username={username} />
 		</div>

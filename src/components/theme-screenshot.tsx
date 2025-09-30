@@ -55,22 +55,46 @@ function ScreenshotSkeleton() {
 export function ThemeScreenshot({
 	id,
 	demo,
-	mode,
+	mode = 'light',
 	version,
 	width,
 	alt = 'Theme preview',
 	className
 }: ThemeScreenshotProps) {
-	const [isLoading, setIsLoading] = React.useState(true)
+	const [lightLoaded, setLightLoaded] = React.useState(false)
+	const [darkLoaded, setDarkLoaded] = React.useState(false)
+	// Track which modes have been requested for loading
+	const [shouldLoadLight, setShouldLoadLight] = React.useState(
+		mode === 'light'
+	)
+	const [shouldLoadDark, setShouldLoadDark] = React.useState(mode === 'dark')
 
-	const params = new URLSearchParams()
-	if (demo) params.set('demo', demo)
-	if (mode) params.set('mode', mode)
-	if (version !== undefined) params.set('v', version.toString())
-	if (width) params.set('width', width.toString())
+	// When mode changes, trigger loading of the new mode's image
+	React.useEffect(() => {
+		if (mode === 'light' && !shouldLoadLight) {
+			setShouldLoadLight(true)
+		} else if (mode === 'dark' && !shouldLoadDark) {
+			setShouldLoadDark(true)
+		}
+	}, [mode, shouldLoadLight, shouldLoadDark])
 
-	const query = params.toString()
-	const src = `/api/screenshots/${id}${query ? `?${query}` : ''}`
+	// Generate URLs for both light and dark versions
+	const createUrl = (themeMode: 'light' | 'dark') => {
+		const params = new URLSearchParams()
+		if (demo) params.set('demo', demo)
+		params.set('mode', themeMode)
+		if (version !== undefined) params.set('v', version.toString())
+		if (width) params.set('width', width.toString())
+		const query = params.toString()
+		return `/api/screenshots/${id}${query ? `?${query}` : ''}`
+	}
+
+	const lightSrc = createUrl('light')
+	const darkSrc = createUrl('dark')
+
+	// Only show loading skeleton if the currently selected mode isn't loaded yet
+	const isLoading =
+		(mode === 'light' && !lightLoaded) || (mode === 'dark' && !darkLoaded)
 
 	return (
 		<div
@@ -78,14 +102,28 @@ export function ThemeScreenshot({
 			style={{ aspectRatio: '16 / 10' }}
 		>
 			{isLoading && <ScreenshotSkeleton />}
-			<img
-				src={src}
-				alt={alt}
-				className="w-full h-full object-cover"
-				onLoad={() => setIsLoading(false)}
-				onError={() => setIsLoading(false)}
-				style={{ opacity: isLoading ? 0 : 1 }}
-			/>
+			{/* Light mode screenshot - only render if we should load it */}
+			{shouldLoadLight && (
+				<img
+					src={lightSrc}
+					alt={`${alt} (light mode)`}
+					className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+					onLoad={() => setLightLoaded(true)}
+					onError={() => setLightLoaded(true)}
+					style={{ opacity: mode === 'light' ? 1 : 0 }}
+				/>
+			)}
+			{/* Dark mode screenshot - only render if we should load it */}
+			{shouldLoadDark && (
+				<img
+					src={darkSrc}
+					alt={`${alt} (dark mode)`}
+					className="absolute inset-0 w-full h-full object-cover transition-opacity duration-500"
+					onLoad={() => setDarkLoaded(true)}
+					onError={() => setDarkLoaded(true)}
+					style={{ opacity: mode === 'dark' ? 1 : 0 }}
+				/>
+			)}
 		</div>
 	)
 }

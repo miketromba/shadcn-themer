@@ -4,6 +4,7 @@ import { ThemeProvider } from 'next-themes'
 import './globals.css'
 import { SiteHeader } from '@/components/site-header'
 import { QueryProvider } from '@/components/providers/query-provider'
+import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
 
 const defaultUrl = process.env.VERCEL_URL
 	? `https://${process.env.VERCEL_URL}`
@@ -36,10 +37,12 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<QueryProvider>
-						<main className="min-h-screen flex flex-col">
-							<SiteHeader />
-							<div className="flex-1">{children}</div>
-						</main>
+						<ThemeDataProvider>
+							<main className="min-h-screen flex flex-col">
+								<SiteHeader />
+								<div className="flex-1">{children}</div>
+							</main>
+						</ThemeDataProvider>
 					</QueryProvider>
 				</ThemeProvider>
 			</body>

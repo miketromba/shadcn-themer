@@ -1,6 +1,4 @@
 # Todo
-- Theme list filters / sorting
-    - Toggle light/dark preview mode in theme listings
 - Fork themes
 - Allow viewing theme in unauthenticated state (show fork button etc which pops up auth modal)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
@@ -14,6 +12,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Toggle light/dark preview mode in theme listings
 - Filter by primary color (like 10 options)
 - Add user themes page
 - Impl theme list sorting (new, popular) and set popular as default on client
