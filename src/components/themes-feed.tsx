@@ -6,7 +6,13 @@ import { ThemesList } from '@/components/themes-list'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 
-export function ThemesFeed({ sortBy = 'new' }: { sortBy?: 'new' | 'popular' }) {
+export function ThemesFeed({
+	sortBy = 'new',
+	username
+}: {
+	sortBy?: 'new' | 'popular'
+	username?: string
+}) {
 	const {
 		data,
 		isLoading,
@@ -17,7 +23,8 @@ export function ThemesFeed({ sortBy = 'new' }: { sortBy?: 'new' | 'popular' }) {
 		isFetchingNextPage
 	} = useThemesList({
 		pageSize: 16,
-		sortBy
+		sortBy,
+		username
 	})
 
 	const items = React.useMemo(() => {

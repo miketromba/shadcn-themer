@@ -17,7 +17,7 @@ export default function ExamplesSwitcher({
 	const [tab, setTab] = React.useState('cards')
 	return (
 		<Tabs value={tab} onValueChange={setTab}>
-			<div className="flex items-center justify-between gap-3">
+			<div className="flex items-center justify-between gap-3 pb-3">
 				<TabsList>
 					<TabsTrigger value="cards">Cards</TabsTrigger>
 					<TabsTrigger value="dashboard">Dashboard</TabsTrigger>

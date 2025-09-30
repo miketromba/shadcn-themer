@@ -15,7 +15,7 @@ import {
 import { parseShadcnThemeFromJson, zShadcnTheme } from '@/lib/shadcnTheme'
 
 export const themesRouter = new Hono()
-	// GET /themes?pageSize&nextToken&sortBy
+	// GET /themes?pageSize&nextToken&sortBy&username
 	.get(
 		'/',
 		zValidator(
@@ -23,38 +23,58 @@ export const themesRouter = new Hono()
 			z.object({
 				pageSize: z.string().optional(),
 				nextToken: z.string().optional(),
-				sortBy: z.enum(['new', 'popular']).optional().default('new')
+				sortBy: z.enum(['new', 'popular']).optional().default('new'),
+				username: z.string().optional()
 			})
 		),
 		async c => {
 			const {
 				pageSize: pageSizeParam,
 				nextToken,
-				sortBy
+				sortBy,
+				username
 			} = c.req.valid('query')
 			const limit = clampPageSize(
 				pageSizeParam ? parseInt(pageSizeParam, 10) : DEFAULT_PAGE_SIZE
 			)
 			const cursor = decodePaginationToken(nextToken)
 
-			// Build where clause based on cursor and sortBy
+			// Build where clause based on cursor, sortBy, and username
 			let whereClause: SQL | undefined
+			const whereClauses: SQL[] = []
+
+			// Add username filter if provided
+			if (username) {
+				whereClauses.push(eq(schema.profiles.username, username))
+			}
+
+			// Add cursor condition
 			if (cursor) {
 				const cursorDate = new Date(cursor.lastCreatedAt)
 				if (sortBy === 'popular') {
 					// For popular sort: star_count DESC, created_at DESC
 					// Cursor pagination: (star_count < cursor.lastStarCount) OR (star_count = cursor.lastStarCount AND created_at < cursor.lastCreatedAt)
-					whereClause = sql`(${schema.themes.star_count} < ${
-						cursor.lastStarCount
-					}) OR (${schema.themes.star_count} = ${
-						cursor.lastStarCount
-					} AND ${
-						schema.themes.created_at
-					} < ${cursorDate.toISOString()})`
+					whereClauses.push(
+						sql`(${schema.themes.star_count} < ${
+							cursor.lastStarCount
+						}) OR (${schema.themes.star_count} = ${
+							cursor.lastStarCount
+						} AND ${
+							schema.themes.created_at
+						} < ${cursorDate.toISOString()})`
+					)
 				} else {
 					// For new sort: created_at DESC
-					whereClause = lt(schema.themes.created_at, cursorDate)
+					whereClauses.push(lt(schema.themes.created_at, cursorDate))
 				}
+			}
+
+			// Combine all where clauses
+			if (whereClauses.length > 0) {
+				whereClause =
+					whereClauses.length === 1
+						? whereClauses[0]
+						: and(...whereClauses)
 			}
 
 			const rows = await db

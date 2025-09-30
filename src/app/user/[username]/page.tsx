@@ -4,17 +4,27 @@ import { ThemesFeed } from '@/components/themes-feed'
 import { Button } from '@/components/ui/button'
 import { Loader2 } from 'lucide-react'
 import { useCreateTheme } from '@/api/client/themes'
+import { use } from 'react'
 
-export default function Home() {
+interface PageProps {
+	params: Promise<{
+		username: string
+	}>
+}
+
+export default function UserThemesPage({ params }: PageProps) {
+	const { username } = use(params)
 	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
 
 	return (
 		<div className="container mx-auto px-8 py-6">
 			<div className="mb-6 flex items-center justify-between">
 				<div>
-					<h1 className="text-2xl font-semibold">ShadCN Themes</h1>
+					<h1 className="text-2xl font-semibold">
+						{username}&apos;s Themes
+					</h1>
 					<p className="text-sm text-muted-foreground mt-1">
-						Discover and create beautiful themes for shadcn/ui
+						Browse themes created by @{username}
 					</p>
 				</div>
 				<Button onClick={() => createTheme({})} disabled={isCreating}>
@@ -28,7 +38,7 @@ export default function Home() {
 					)}
 				</Button>
 			</div>
-			<ThemesFeed sortBy="popular" />
+			<ThemesFeed sortBy="new" username={username} />
 		</div>
 	)
 }

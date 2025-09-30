@@ -15,6 +15,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Add user themes page
 - Impl theme list sorting (new, popular) and set popular as default on client
 - Styled theme cards (include star btn in them)
 - Rendered preview image for themes (wire up with https://github.com/miketromba/screenshot-service)

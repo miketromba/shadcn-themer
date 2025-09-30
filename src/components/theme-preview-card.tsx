@@ -1,10 +1,10 @@
 'use client'
 
 import * as React from 'react'
-import type { ShadcnTheme } from '@/lib/shadcnTheme'
 import { StarToggle } from './theme-editor/star-toggle'
 import { useRouter } from 'next/navigation'
 import { ThemeScreenshot } from './theme-screenshot'
+import Link from 'next/link'
 
 type ThemePreviewCardProps = {
 	id: string
@@ -27,11 +27,11 @@ export function ThemePreviewCard({
 			tabIndex={0}
 			aria-label={`Open ${name}`}
 			className="cursor-pointer"
-			onClick={() => router.push(`/app/themes/${id}`)}
+			onClick={() => router.push(`/themes/${id}`)}
 			onKeyDown={e => {
 				if (e.key === 'Enter' || e.key === ' ') {
 					e.preventDefault()
-					router.push(`/app/themes/${id}`)
+					router.push(`/themes/${id}`)
 				}
 			}}
 		>
@@ -48,14 +48,15 @@ export function ThemePreviewCard({
 					<div>
 						<div className="text-sm font-medium">{name}</div>
 						{username && (
-							<div
-								className="text-xs text-muted-foreground group"
-								onClick={e => e.stopPropagation()}
-							>
+							<div className="text-xs text-muted-foreground">
 								by{' '}
-								<span className="group-hover:text-primary transition-colors group-hover:underline">
+								<Link
+									href={`/user/${username}`}
+									onClick={e => e.stopPropagation()}
+									className="hover:text-primary transition-colors hover:underline"
+								>
 									{username}
-								</span>
+								</Link>
 							</div>
 						)}
 					</div>
