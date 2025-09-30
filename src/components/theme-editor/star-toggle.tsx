@@ -5,17 +5,23 @@ import { Button } from '@/components/ui/button'
 import { Star } from 'lucide-react'
 import { useTheme } from '@/api/client/themes'
 import { useStarTheme, useUnstarTheme } from '@/api/client/themes'
+import { useAuthModal } from '@/components/providers/auth-modal-provider'
+import { useAuth } from '@/hooks/use-auth'
 
 export function StarToggle({
 	id,
-	onClick
+	onClick,
+	variant = 'ghost'
 }: {
 	id: string
 	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
+	variant?: 'ghost' | 'outline'
 }) {
 	const { data } = useTheme(id)
 	const star = useStarTheme()
 	const unstar = useUnstarTheme()
+	const { openAuthModal } = useAuthModal()
+	const { user } = useAuth()
 
 	const starCount =
 		typeof data?.theme?.star_count === 'number'
@@ -26,6 +32,10 @@ export function StarToggle({
 	const isPending = star.isPending || unstar.isPending
 
 	function toggle() {
+		if (!user) {
+			openAuthModal('login')
+			return
+		}
 		if (isPending) return
 		if (isStarred) {
 			unstar.mutate({ id })
@@ -35,33 +45,29 @@ export function StarToggle({
 	}
 
 	return (
-		<div className="flex items-center gap-2">
-			<Button
-				type="button"
-				variant="ghost"
-				aria-label={isStarred ? 'Unstar' : 'Star'}
-				onClick={e => {
-					toggle()
-					onClick?.(e)
-				}}
-				size="sm"
-				className={
-					isStarred
-						? 'text-yellow-500 hover:text-yellow-500'
-						: 'text-muted-foreground hover:text-foreground'
-				}
-				title={isStarred ? 'Unstar this theme' : 'Star this theme'}
+		<Button
+			type="button"
+			variant={variant}
+			aria-label={isStarred ? 'Unstar' : 'Star'}
+			onClick={e => {
+				toggle()
+				onClick?.(e)
+			}}
+			size="sm"
+			className={
+				isStarred
+					? 'text-yellow-500 hover:text-yellow-500'
+					: 'text-muted-foreground hover:text-foreground'
+			}
+			title={isStarred ? 'Unstar this theme' : 'Star this theme'}
+		>
+			<Star className={isStarred ? 'size-4 fill-yellow-500' : 'size-4'} />
+			<div
+				className="text-sm tabular-nums text-muted-foreground ml-0.5"
+				aria-live="polite"
 			>
-				<Star
-					className={isStarred ? 'size-4 fill-yellow-500' : 'size-4'}
-				/>
-				<div
-					className="text-sm tabular-nums text-muted-foreground"
-					aria-live="polite"
-				>
-					{starCount}
-				</div>
-			</Button>
-		</div>
+				{starCount}
+			</div>
+		</Button>
 	)
 }

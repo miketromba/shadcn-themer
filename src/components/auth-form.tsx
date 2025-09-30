@@ -24,11 +24,19 @@ import { useState } from 'react'
 
 type AuthMode = 'login' | 'signup'
 
+interface AuthFormProps extends React.ComponentPropsWithoutRef<'div'> {
+	mode: AuthMode
+	isModal?: boolean
+	onSuccess?: () => void
+}
+
 export function AuthForm({
 	mode,
+	isModal = false,
+	onSuccess,
 	className,
 	...props
-}: { mode: AuthMode } & React.ComponentPropsWithoutRef<'div'>) {
+}: AuthFormProps) {
 	const [email, setEmail] = useState('')
 	const [otp, setOtp] = useState('')
 	const [stage, setStage] = useState<'request' | 'verify'>('request')
@@ -60,7 +68,13 @@ export function AuthForm({
 					token: otp
 				})
 				if (error) throw error
-				router.push('/app')
+
+				// Call success callback if modal, otherwise redirect
+				if (isModal && onSuccess) {
+					onSuccess()
+				} else {
+					router.push('/')
+				}
 				return
 			}
 		} catch (error: unknown) {
@@ -72,7 +86,7 @@ export function AuthForm({
 		}
 	}
 
-	const title = mode === 'login' ? 'Sign in' : 'Create your account'
+	const title = mode === 'login' ? 'Welcome' : 'Create your account'
 	const footerText =
 		mode === 'login' ? "Don't have an account?" : 'Already have an account?'
 	const footerHref = mode === 'login' ? '/auth/sign-up' : '/auth/login'
@@ -80,16 +94,20 @@ export function AuthForm({
 
 	return (
 		<div className={cn('flex flex-col gap-6', className)} {...props}>
-			<Card>
-				<CardHeader>
+			<Card
+				className={cn(isModal && 'border-0 shadow-none bg-transparent')}
+			>
+				<CardHeader className={cn(isModal && 'px-0 pt-0')}>
 					<CardTitle className="text-2xl">{title}</CardTitle>
 					<CardDescription>
 						{stage === 'request'
-							? 'Enter your email to receive a one-time code'
+							? mode === 'login'
+								? 'Sign in or create an account with your email'
+								: 'Enter your email to receive a one-time code'
 							: 'Enter the 6-digit code sent to your email'}
 					</CardDescription>
 				</CardHeader>
-				<CardContent>
+				<CardContent className={cn(isModal && 'px-0 pb-0')}>
 					<form onSubmit={handleSubmit}>
 						<div className="flex flex-col gap-6">
 							{stage === 'request' ? (
@@ -153,15 +171,17 @@ export function AuthForm({
 									: 'Verify code'}
 							</Button>
 						</div>
-						<div className="mt-4 text-center text-sm">
-							{footerText}{' '}
-							<Link
-								href={footerHref}
-								className="underline underline-offset-4"
-							>
-								{footerCta}
-							</Link>
-						</div>
+						{!isModal && (
+							<div className="mt-4 text-center text-sm">
+								{footerText}{' '}
+								<Link
+									href={footerHref}
+									className="underline underline-offset-4"
+								>
+									{footerCta}
+								</Link>
+							</div>
+						)}
 					</form>
 				</CardContent>
 			</Card>

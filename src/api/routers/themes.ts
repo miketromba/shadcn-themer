@@ -236,11 +236,16 @@ export const themesRouter = new Hono()
 					updated_at: schema.themes.updated_at,
 					star_count: schema.themes.star_count,
 					version: schema.themes.version,
+					username: schema.profiles.username,
 					is_starred: userId
 						? sql<boolean>`EXISTS (SELECT 1 FROM ${schema.stars} AS s WHERE s.theme_id = ${schema.themes.id} AND s.user_id = ${userId})`
 						: sql<boolean>`false`
 				})
 				.from(schema.themes)
+				.innerJoin(
+					schema.profiles,
+					eq(schema.profiles.id, schema.themes.user_id)
+				)
 				.where(eq(schema.themes.id, id))
 				.limit(1)
 
@@ -253,7 +258,8 @@ export const themesRouter = new Hono()
 				...row,
 				star_count: Number(row.star_count),
 				json: parsedTheme,
-				is_starred: Boolean(row.is_starred)
+				is_starred: Boolean(row.is_starred),
+				username: row.username ?? null
 			}
 			return c.json({ theme: rowClean })
 		}

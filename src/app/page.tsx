@@ -2,14 +2,11 @@
 
 import * as React from 'react'
 import { ThemesFeed } from '@/components/themes-feed'
-import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
-import { useCreateTheme } from '@/api/client/themes'
+import { CreateThemeButton } from '@/components/create-theme-button'
 import { ColorBucketFilter } from '@/components/color-bucket-filter'
 import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 
 export default function Home() {
-	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
 	const [selectedBuckets, setSelectedBuckets] = React.useState<string[]>([])
 
 	return (
@@ -21,16 +18,7 @@ export default function Home() {
 						Discover and create beautiful themes for shadcn/ui
 					</p>
 				</div>
-				<Button onClick={() => createTheme({})} disabled={isCreating}>
-					{isCreating ? (
-						<>
-							<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							Creating...
-						</>
-					) : (
-						'New Theme'
-					)}
-				</Button>
+				<CreateThemeButton />
 			</div>
 
 			<div className="mb-6 flex items-end justify-between gap-4">

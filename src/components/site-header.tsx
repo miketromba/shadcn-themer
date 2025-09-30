@@ -1,44 +1,23 @@
 'use client'
 
 import { UserMenu } from '@/components/user-menu'
+import { CreateThemeButton } from '@/components/create-theme-button'
 import { usePathname } from 'next/navigation'
 import { SiteLogo } from '@/components/site-logo'
 import { Button } from '@/components/ui/button'
 import { useCurrentUserProfile } from '@/api/client/users'
-import { useEffect, useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { LayoutGrid, User } from 'lucide-react'
 
 export function SiteHeader() {
 	const pathname = usePathname()
-	const [user, setUser] = useState<{ id: string } | null>(null)
+	const { user } = useAuth()
 	const { data: profileResponse } = useCurrentUserProfile(Boolean(user))
-
-	useEffect(() => {
-		const supabase = createClient()
-		let ignore = false
-
-		const load = async () => {
-			const { data } = await supabase.auth.getUser()
-			if (!ignore) setUser(data.user ?? null)
-		}
-
-		load()
-
-		const { data: sub } = supabase.auth.onAuthStateChange(() => {
-			load()
-		})
-
-		return () => {
-			ignore = true
-			sub?.subscription.unsubscribe()
-		}
-	}, [])
 
 	const username = profileResponse?.profile?.username
 
-	if (pathname?.startsWith('/themes/') || pathname?.startsWith('/preview/')) {
+	if (pathname?.endsWith('/edit') || pathname?.startsWith('/preview/')) {
 		return null
 	}
 
@@ -78,7 +57,12 @@ export function SiteHeader() {
 						</Button>
 					)}
 				</div>
-				<div className="flex-1 flex justify-end">
+				<div className="flex-1 flex justify-end items-center gap-2">
+					{user &&
+						pathname !== '/' &&
+						!pathname?.startsWith('/user/') && (
+							<CreateThemeButton size="sm" hideTextOnMobile />
+						)}
 					<UserMenu />
 				</div>
 			</nav>

@@ -1,12 +1,13 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useCurrentUserProfile } from '@/api/client/users'
+import { useAuth } from '@/hooks/use-auth'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
 	DropdownMenu,
@@ -18,41 +19,11 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { ChangeUsernameDialog } from '@/components/user/change-username-dialog'
 
-type SupabaseUser = {
-	email?: string | null
-	user_metadata?: Record<string, unknown> | null
-}
-
 export function UserMenu() {
 	const router = useRouter()
-
-	const [isMounted, setIsMounted] = useState(false)
-	const [user, setUser] = useState<SupabaseUser | null>(null)
+	const { user, isLoading } = useAuth()
 	const { data: profileResponse } = useCurrentUserProfile(Boolean(user))
 	const [open, setOpen] = useState(false)
-
-	useEffect(() => {
-		setIsMounted(true)
-		const supabase = createClient()
-
-		let ignore = false
-
-		const load = async () => {
-			const { data } = await supabase.auth.getUser()
-			if (!ignore) setUser(data.user ?? null)
-		}
-
-		load()
-
-		const { data: sub } = supabase.auth.onAuthStateChange(() => {
-			load()
-		})
-
-		return () => {
-			ignore = true
-			sub?.subscription.unsubscribe()
-		}
-	}, [])
 
 	const displayName = useMemo(() => {
 		const username = profileResponse?.profile?.username ?? ''
@@ -79,7 +50,7 @@ export function UserMenu() {
 		router.push('/auth/login')
 	}
 
-	if (!isMounted) return null
+	if (isLoading) return null
 
 	if (!user) {
 		return (

@@ -98,7 +98,7 @@ export function useCreateTheme() {
 		onSuccess: async data => {
 			await qc.invalidateQueries({ queryKey: ['themes'] })
 			if (data.ok && 'id' in data) {
-				router.push(`/themes/${data.id}`)
+				router.push(`/themes/${data.id}/edit`)
 			}
 		}
 	})

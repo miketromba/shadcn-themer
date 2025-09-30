@@ -3,10 +3,12 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
 	const pathname = request.nextUrl.pathname
-	// Allow unauthenticated access only for screenshots API
+	// Skip auth middleware for API routes and preview/screenshot routes
+	// API routes handle their own auth, preview routes are public
 	if (pathname.startsWith('/api/') || pathname.startsWith('/preview/')) {
 		return NextResponse.next({ request })
 	}
+	// For all other routes, handle authentication and session updates
 	return await updateSession(request)
 }
 

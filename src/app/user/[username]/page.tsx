@@ -1,9 +1,7 @@
 'use client'
 
 import { ThemesFeed } from '@/components/themes-feed'
-import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
-import { useCreateTheme } from '@/api/client/themes'
+import { CreateThemeButton } from '@/components/create-theme-button'
 import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 import { use } from 'react'
 
@@ -15,7 +13,6 @@ interface PageProps {
 
 export default function UserThemesPage({ params }: PageProps) {
 	const { username } = use(params)
-	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
 
 	return (
 		<div className="container mx-auto px-8 py-6">
@@ -30,19 +27,7 @@ export default function UserThemesPage({ params }: PageProps) {
 				</div>
 				<div className="flex items-center gap-3">
 					<PreviewModeToggle />
-					<Button
-						onClick={() => createTheme({})}
-						disabled={isCreating}
-					>
-						{isCreating ? (
-							<>
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-								Creating...
-							</>
-						) : (
-							'New Theme'
-						)}
-					</Button>
+					<CreateThemeButton />
 				</div>
 			</div>
 			<ThemesFeed sortBy="new" username={username} />
