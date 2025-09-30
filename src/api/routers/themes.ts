@@ -1,7 +1,7 @@
 import { Hono } from 'hono'
 import { db, schema } from '@/db'
 import { getAuthUser } from '@/api/auth'
-import { and, desc, eq, lt, sql } from 'drizzle-orm'
+import { and, desc, eq, lt, sql, SQL } from 'drizzle-orm'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
 
@@ -15,26 +15,47 @@ import {
 import { parseShadcnThemeFromJson, zShadcnTheme } from '@/lib/shadcnTheme'
 
 export const themesRouter = new Hono()
-	// GET /themes?pageSize&nextToken
+	// GET /themes?pageSize&nextToken&sortBy
 	.get(
 		'/',
 		zValidator(
 			'query',
 			z.object({
 				pageSize: z.string().optional(),
-				nextToken: z.string().optional()
+				nextToken: z.string().optional(),
+				sortBy: z.enum(['new', 'popular']).optional().default('new')
 			})
 		),
 		async c => {
-			const { pageSize: pageSizeParam, nextToken } = c.req.valid('query')
+			const {
+				pageSize: pageSizeParam,
+				nextToken,
+				sortBy
+			} = c.req.valid('query')
 			const limit = clampPageSize(
 				pageSizeParam ? parseInt(pageSizeParam, 10) : DEFAULT_PAGE_SIZE
 			)
 			const cursor = decodePaginationToken(nextToken)
 
-			const whereClause = cursor
-				? lt(schema.themes.created_at, new Date(cursor.lastCreatedAt))
-				: sql`true`
+			// Build where clause based on cursor and sortBy
+			let whereClause: SQL | undefined
+			if (cursor) {
+				const cursorDate = new Date(cursor.lastCreatedAt)
+				if (sortBy === 'popular') {
+					// For popular sort: star_count DESC, created_at DESC
+					// Cursor pagination: (star_count < cursor.lastStarCount) OR (star_count = cursor.lastStarCount AND created_at < cursor.lastCreatedAt)
+					whereClause = sql`(${schema.themes.star_count} < ${
+						cursor.lastStarCount
+					}) OR (${schema.themes.star_count} = ${
+						cursor.lastStarCount
+					} AND ${
+						schema.themes.created_at
+					} < ${cursorDate.toISOString()})`
+				} else {
+					// For new sort: created_at DESC
+					whereClause = lt(schema.themes.created_at, cursorDate)
+				}
+			}
 
 			const rows = await db
 				.select({
@@ -52,7 +73,18 @@ export const themesRouter = new Hono()
 					eq(schema.profiles.id, schema.themes.user_id)
 				)
 				.where(whereClause)
-				.orderBy(desc(schema.themes.created_at), desc(schema.themes.id))
+				.orderBy(
+					...(sortBy === 'popular'
+						? [
+								desc(schema.themes.star_count),
+								desc(schema.themes.created_at),
+								desc(schema.themes.id)
+						  ]
+						: [
+								desc(schema.themes.created_at),
+								desc(schema.themes.id)
+						  ])
+				)
 				.limit(limit + 1)
 
 			const hasMore = rows.length > limit
@@ -74,7 +106,8 @@ export const themesRouter = new Hono()
 							lastId: items[items.length - 1].id,
 							lastCreatedAt:
 								items[items.length - 1].created_at ??
-								new Date(0).toISOString()
+								new Date(0).toISOString(),
+							lastStarCount: items[items.length - 1].star_count
 					  })
 					: null
 

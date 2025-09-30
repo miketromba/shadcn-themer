@@ -51,15 +51,17 @@ export type DeleteThemeResponse = InferResponseType<
 >
 
 export function useThemesList({
-	pageSize = DEFAULT_PAGE_SIZE
-}: { pageSize?: number } = {}) {
+	pageSize = DEFAULT_PAGE_SIZE,
+	sortBy = 'new'
+}: { pageSize?: number; sortBy?: 'new' | 'popular' } = {}) {
 	return useInfiniteQuery<ThemesListResponse>({
-		queryKey: ['themes', { pageSize }],
+		queryKey: ['themes', { pageSize, sortBy }],
 		queryFn: async ({ pageParam }) => {
 			const res = await apiClient.api.themes.$get({
 				query: {
 					pageSize: String(pageSize),
-					nextToken: (pageParam as string | null) ?? undefined
+					nextToken: (pageParam as string | null) ?? undefined,
+					sortBy
 				}
 			})
 			if (!res.ok) throw new Error('Failed to load themes')

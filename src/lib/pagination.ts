@@ -25,6 +25,7 @@ export function clampPageSize(pageSize: number): number {
 export interface PaginationCursor {
 	lastId: string
 	lastCreatedAt: string
+	lastStarCount?: number
 }
 
 /**

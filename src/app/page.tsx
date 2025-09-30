@@ -7,6 +7,7 @@ import { useCreateTheme } from '@/api/client/themes'
 
 export default function Home() {
 	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
+
 	return (
 		<div className="container mx-auto px-8 py-6">
 			<div className="mb-6 flex items-center justify-between">
@@ -22,7 +23,7 @@ export default function Home() {
 					)}
 				</Button>
 			</div>
-			<ThemesFeed />
+			<ThemesFeed sortBy="popular" />
 		</div>
 	)
 }
