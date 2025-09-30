@@ -3,6 +3,7 @@
 import * as React from 'react'
 import type { ShadcnTheme } from '@/lib/shadcnTheme'
 import { useThemeData } from '@/components/providers/theme-data-provider'
+import { cn } from '@/lib/utils'
 
 type ThemeVars = NonNullable<ShadcnTheme['light']>
 
@@ -18,6 +19,13 @@ const varsToInlineStyle = (
 	return style
 }
 
+// Context for providing portal container to child components
+const PortalContainerContext = React.createContext<HTMLElement | null>(null)
+
+export function usePortalContainer() {
+	return React.useContext(PortalContainerContext)
+}
+
 export function ThemedScope({
 	children,
 	theme
@@ -27,6 +35,7 @@ export function ThemedScope({
 }) {
 	const { theme: ctxTheme, previewMode } = useThemeData()
 	const effectiveTheme = theme ?? ctxTheme
+	const portalContainerRef = React.useRef<HTMLDivElement>(null)
 
 	// Avoid SSR mismatch: default previewMode is light on first render
 	const applied =
@@ -44,7 +53,19 @@ export function ThemedScope({
 			data-theme-ready={isThemeReady ? 'true' : 'false'}
 			suppressHydrationWarning
 		>
-			{children}
+			<PortalContainerContext.Provider value={portalContainerRef.current}>
+				{children}
+				{/* Portal container for Radix UI portals - inherits theme variables */}
+				<div
+					ref={portalContainerRef}
+					className={cn(
+						wrapperClass,
+						'bg-background text-foreground'
+					)}
+					style={style}
+					suppressHydrationWarning
+				/>
+			</PortalContainerContext.Provider>
 		</div>
 	)
 }

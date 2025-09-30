@@ -16,6 +16,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Fix bug with portaled shadcn ui components within preview example ui's not inheriting custom theme because they got portaled to the document root
 - Fix tasks example in light mode - text doesnt render well in the data table
 - Add favicon
 - Design + add good logo
