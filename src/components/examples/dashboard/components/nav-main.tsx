@@ -25,9 +25,12 @@ export function NavMain({
 			<SidebarGroupContent>
 				<SidebarGroupLabel>Home</SidebarGroupLabel>
 				<SidebarMenu>
-					{items.map(item => (
+					{items.map((item, index) => (
 						<SidebarMenuItem key={item.title}>
-							<SidebarMenuButton tooltip={item.title}>
+							<SidebarMenuButton
+								tooltip={item.title}
+								isActive={index === 0}
+							>
 								{item.icon && <item.icon />}
 								<span>{item.title}</span>
 							</SidebarMenuButton>

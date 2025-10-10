@@ -16,6 +16,7 @@ import {
 	parseOKLCH,
 	toOKLCHString
 } from '@/components/theme-editor/oklch-color-picker'
+import { COLOR_EXAMPLE_MAP } from '@/lib/colorExampleMapping'
 
 const GROUPS: Array<{ id: string; title: string; keys: ColorKey[] }> = [
 	{
@@ -115,7 +116,7 @@ function ColorRow({
 }
 
 export function ThemeEditorSidebar() {
-	const { theme, updateVar, previewMode } = useThemeData()
+	const { theme, updateVar, previewMode, setActiveExample } = useThemeData()
 	const [editingKey, setEditingKey] = React.useState<ColorKey | null>(null)
 	const defaults = React.useMemo(() => getDefaultShadcnTheme(), [])
 	return (
@@ -161,12 +162,26 @@ export function ThemeEditorSidebar() {
 														keyName={k}
 														value={displayValue}
 														onClick={() => {
+															const newKey =
+																editingKey === k
+																	? null
+																	: k
 															setEditingKey(
-																prev =>
-																	prev === k
-																		? null
-																		: k
+																newKey
 															)
+															// Switch to appropriate example when expanding
+															if (
+																newKey &&
+																COLOR_EXAMPLE_MAP[
+																	newKey
+																]
+															) {
+																setActiveExample(
+																	COLOR_EXAMPLE_MAP[
+																		newKey
+																	]
+																)
+															}
 														}}
 													/>
 													{editingKey === k ? (

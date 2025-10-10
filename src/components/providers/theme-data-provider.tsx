@@ -7,6 +7,7 @@ import {
 	parseShadcnThemeFromJson
 } from '@/lib/shadcnTheme'
 import { useTheme as useThemeQuery, useUpdateTheme } from '@/api/client/themes'
+import { EXAMPLE_IDS, type ExampleId } from '@/lib/colorExampleMapping'
 
 type ThemeContextValue = {
 	theme: ShadcnTheme | null
@@ -18,6 +19,8 @@ type ThemeContextValue = {
 	) => void
 	previewMode: 'light' | 'dark'
 	setPreviewMode: (mode: 'light' | 'dark') => void
+	activeExample: ExampleId
+	setActiveExample: (example: ExampleId) => void
 }
 
 const ThemeDataContext = React.createContext<ThemeContextValue>({
@@ -25,7 +28,9 @@ const ThemeDataContext = React.createContext<ThemeContextValue>({
 	id: undefined,
 	updateVar: () => {},
 	previewMode: 'light',
-	setPreviewMode: () => {}
+	setPreviewMode: () => {},
+	activeExample: EXAMPLE_IDS.CARDS,
+	setActiveExample: () => {}
 })
 
 const PREVIEW_MODE_STORAGE_KEY = 'shadcn-themer-previewMode'
@@ -65,6 +70,9 @@ export function ThemeDataProvider({
 			return 'light'
 		}
 	)
+	const [activeExample, setActiveExample] = React.useState<ExampleId>(
+		EXAMPLE_IDS.CARDS
+	)
 	const [needsUpdate, setNeedsUpdate] = React.useState<boolean>(false)
 
 	// Persist preview mode changes
@@ -101,8 +109,16 @@ export function ThemeDataProvider({
 	)
 
 	const ctx: ThemeContextValue = React.useMemo(
-		() => ({ theme, id, updateVar, previewMode, setPreviewMode }),
-		[theme, id, updateVar, previewMode]
+		() => ({
+			theme,
+			id,
+			updateVar,
+			previewMode,
+			setPreviewMode,
+			activeExample,
+			setActiveExample
+		}),
+		[theme, id, updateVar, previewMode, activeExample]
 	)
 
 	// Debounced auto-save when theme changes and id is present
