@@ -78,7 +78,7 @@ export function DataTable<TData, TValue>({
 				<Table>
 					<TableHeader>
 						{table.getHeaderGroups().map(headerGroup => (
-							<TableRow key={headerGroup.id}>
+							<TableRow key={headerGroup.id} className="bg-muted">
 								{headerGroup.headers.map(header => {
 									return (
 										<TableHead
@@ -100,12 +100,13 @@ export function DataTable<TData, TValue>({
 					</TableHeader>
 					<TableBody>
 						{table.getRowModel().rows?.length ? (
-							table.getRowModel().rows.map(row => (
+							table.getRowModel().rows.map((row, index) => (
 								<TableRow
 									key={row.id}
 									data-state={
 										row.getIsSelected() && 'selected'
 									}
+									className={index === 2 ? 'bg-muted/50' : ''}
 								>
 									{row.getVisibleCells().map(cell => (
 										<TableCell key={cell.id}>

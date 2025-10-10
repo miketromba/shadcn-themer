@@ -33,8 +33,8 @@ export const COLOR_EXAMPLE_MAP: Record<ColorKey, ExampleId> = {
 	'popover-foreground': EXAMPLE_IDS.POPOVER_SHOWCASE,
 
 	// Primary colors - Dashboard has prominent primary buttons
-	primary: EXAMPLE_IDS.DASHBOARD,
-	'primary-foreground': EXAMPLE_IDS.DASHBOARD,
+	primary: EXAMPLE_IDS.COMPONENTS_SHOWCASE,
+	'primary-foreground': EXAMPLE_IDS.COMPONENTS_SHOWCASE,
 
 	// Secondary colors - Components showcase has secondary buttons
 	secondary: EXAMPLE_IDS.COMPONENTS_SHOWCASE,
@@ -44,17 +44,17 @@ export const COLOR_EXAMPLE_MAP: Record<ColorKey, ExampleId> = {
 	accent: EXAMPLE_IDS.COMPONENTS_SHOWCASE,
 	'accent-foreground': EXAMPLE_IDS.COMPONENTS_SHOWCASE,
 
-	// Muted colors - Components showcase displays muted well
-	muted: EXAMPLE_IDS.COMPONENTS_SHOWCASE,
-	'muted-foreground': EXAMPLE_IDS.COMPONENTS_SHOWCASE,
+	// Muted colors - Tasks example shows muted in table header and row
+	muted: EXAMPLE_IDS.TASKS,
+	'muted-foreground': EXAMPLE_IDS.CARDS,
 
 	// Destructive - Components showcase has destructive buttons
 	destructive: EXAMPLE_IDS.COMPONENTS_SHOWCASE,
 
 	// Borders and inputs - Authentication has many inputs
-	border: EXAMPLE_IDS.AUTHENTICATION,
-	input: EXAMPLE_IDS.AUTHENTICATION,
-	ring: EXAMPLE_IDS.AUTHENTICATION,
+	border: EXAMPLE_IDS.CARDS,
+	input: EXAMPLE_IDS.CARDS,
+	ring: EXAMPLE_IDS.CARDS,
 
 	// Charts - Dashboard has charts
 	'chart-1': EXAMPLE_IDS.DASHBOARD,

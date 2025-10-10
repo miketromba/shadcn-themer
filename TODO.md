@@ -18,6 +18,7 @@
 - Add to mike.gg list ?
 
 # Done
+    - Add popovers example showcase
 - Impl automatic preview example type switching based on which setting is active
 - Fix bug with portaled shadcn ui components within preview example ui's not inheriting custom theme because they got portaled to the document root
 - Fix tasks example in light mode - text doesnt render well in the data table
