@@ -9,6 +9,7 @@ export const EXAMPLE_IDS = {
 	TASKS: 'tasks',
 	AUTHENTICATION: 'authentication',
 	COMPONENTS_SHOWCASE: 'components-showcase',
+	POPOVER_SHOWCASE: 'popover-showcase',
 	DASH_2: 'dash-2'
 } as const
 
@@ -21,15 +22,15 @@ export type ExampleId = (typeof EXAMPLE_IDS)[keyof typeof EXAMPLE_IDS]
 export const COLOR_EXAMPLE_MAP: Record<ColorKey, ExampleId> = {
 	// Base colors - Cards show good variety
 	background: EXAMPLE_IDS.CARDS,
-	foreground: EXAMPLE_IDS.CARDS,
+	foreground: EXAMPLE_IDS.TASKS,
 
 	// Surfaces - Cards showcase these well
 	card: EXAMPLE_IDS.CARDS,
 	'card-foreground': EXAMPLE_IDS.CARDS,
 
-	// Popover colors - Components showcase has hover cards and popovers
-	popover: EXAMPLE_IDS.COMPONENTS_SHOWCASE,
-	'popover-foreground': EXAMPLE_IDS.COMPONENTS_SHOWCASE,
+	// Popover colors - Dedicated popover showcase with always-visible popovers
+	popover: EXAMPLE_IDS.POPOVER_SHOWCASE,
+	'popover-foreground': EXAMPLE_IDS.POPOVER_SHOWCASE,
 
 	// Primary colors - Dashboard has prominent primary buttons
 	primary: EXAMPLE_IDS.DASHBOARD,

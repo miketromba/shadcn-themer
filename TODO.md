@@ -1,18 +1,5 @@
 # Todo
-- Persist activeExample to localstorage and initialize same way we do for previewMode(light/dark)
-
-    There are a few color styles that are hard to visualize as the user is editing them and designing their theme in @sidebar.tsx 
-
-    Specifically - popover-x, primary-foreground, secondary-x, accent-x, muted, destructive, ring, chart-x
-
-    For each of these, we need to create some kind of example UI that gets automatically switched to when a user begins editing the given prop (expands the prop color editor) so that as the user edits it, they can see the change they are making to the theme in real time in-context.
-
-    And for the sidebar, when editing any of the sidebar items, we shound snap the UI to the dashboard example.
-
-    We should also adjust the dashboard example so that the sidebar includes everything the user needs in order to clearly visualize all of the sidebar props (e.g. sidebar-primary is not rendered in that example, so we should add some ui that renders it to that sidebar)
-
-    Store the activeExample id state in our provider.
-
+- Ensure each setting has a suitable preview to visualize it effectively
 - Better theme previews
     - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
@@ -24,12 +11,14 @@
 - Opengraph / twitter card
 
 # Low priority
+- Persist activeExample to localstorage and initialize same way we do for previewMode(light/dark)
 - Download/install via shadcn CLI (registry thing ?)
 - Polish UX
 - Add to flamelab projects list
 - Add to mike.gg list ?
 
 # Done
+- Impl automatic preview example type switching based on which setting is active
 - Fix bug with portaled shadcn ui components within preview example ui's not inheriting custom theme because they got portaled to the document root
 - Fix tasks example in light mode - text doesnt render well in the data table
 - Add favicon
