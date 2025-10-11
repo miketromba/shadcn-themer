@@ -1,0 +1,17 @@
+# https://www.robotstxt.org/robotstxt.html
+User-agent: *
+Allow: /
+
+# Disallow preview-only pages (not for SEO)
+Disallow: /preview/
+
+# Allow all other pages
+Allow: /themes/
+Allow: /user/
+Allow: /contact
+Allow: /privacy
+Allow: /terms
+
+# Sitemap location
+Sitemap: https://shadcnthemer.com/sitemap.xml
+

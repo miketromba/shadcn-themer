@@ -1,87 +1,148 @@
-'use client'
+import type { Metadata } from 'next'
+import { ThemePage } from '@/components/theme-page'
+import {
+	CreativeWorkSchema,
+	BreadcrumbListSchema
+} from '@/components/structured-data'
+import { db, schema } from '@/db'
+import { eq } from 'drizzle-orm'
+import { notFound } from 'next/navigation'
 
-import ExamplesSwitcher from '@/components/examples'
-import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
-import { PreviewModeToggle } from '@/components/preview-mode-toggle'
-import { StarToggle } from '@/components/theme-editor/star-toggle'
-import { ForkButton } from '@/components/theme-editor/fork-button'
-import { CodeExportButton } from '@/components/theme-editor/code-export-button'
-import { useTheme } from '@/api/client/themes'
-import { useAuth } from '@/hooks/use-auth'
-import { use } from 'react'
-import Link from 'next/link'
-import { Loader2, Edit } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+const SITE_URL = 'https://shadcnthemer.com'
 
-export default function ThemePublicViewPage({
-	params
-}: {
+interface PageProps {
 	params: Promise<{ id: string }>
-}) {
-	const { id } = use(params)
-	const { data, isLoading, error } = useTheme(id)
-	const { user } = useAuth()
+}
 
-	if (isLoading) {
-		return (
-			<div className="flex h-screen items-center justify-center">
-				<Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-			</div>
+export async function generateMetadata({
+	params
+}: PageProps): Promise<Metadata> {
+	const { id } = await params
+
+	// Fetch theme data for metadata
+	const rows = await db
+		.select({
+			name: schema.themes.name,
+			created_at: schema.themes.created_at,
+			star_count: schema.themes.star_count,
+			username: schema.profiles.username
+		})
+		.from(schema.themes)
+		.innerJoin(
+			schema.profiles,
+			eq(schema.profiles.id, schema.themes.user_id)
 		)
+		.where(eq(schema.themes.id, id))
+		.limit(1)
+
+	if (!rows.length) {
+		return {
+			title: 'Theme Not Found',
+			description: 'This theme could not be found.'
+		}
 	}
 
-	if (error || !data || !('theme' in data)) {
-		return (
-			<div className="flex h-screen items-center justify-center">
-				<div className="text-center">
-					<h1 className="text-2xl font-semibold mb-2">
-						Theme not found
-					</h1>
-					<p className="text-muted-foreground">
-						The theme you&apos;re looking for doesn&apos;t exist.
-					</p>
-				</div>
-			</div>
+	const theme = rows[0]
+	const themeUrl = `${SITE_URL}/themes/${id}`
+	const title = `${theme.name} - ShadCN Theme by @${theme.username}`
+	const description = `Explore and customize "${theme.name}", a beautiful shadcn/ui theme created by @${theme.username}. ${theme.star_count} stars. Fork it, customize colors, fonts, and export for your Next.js project.`
+
+	return {
+		title,
+		description,
+		keywords: [
+			'shadcn theme',
+			theme.name,
+			`@${theme.username}`,
+			'ui theme',
+			'react theme',
+			'tailwind theme',
+			'design system',
+			'color scheme'
+		],
+		authors: [{ name: theme.username || 'Anonymous' }],
+		alternates: {
+			canonical: themeUrl
+		},
+		openGraph: {
+			title,
+			description,
+			url: themeUrl,
+			type: 'website',
+			images: [
+				{
+					url: `${SITE_URL}/api/screenshots/${id}/light`,
+					width: 1200,
+					height: 630,
+					alt: `${theme.name} - Light Mode Preview`
+				},
+				{
+					url: `${SITE_URL}/api/screenshots/${id}/dark`,
+					width: 1200,
+					height: 630,
+					alt: `${theme.name} - Dark Mode Preview`
+				}
+			]
+		},
+		twitter: {
+			card: 'summary_large_image',
+			title,
+			description: `Check out "${theme.name}" by @${theme.username} on ShadCN Themer`,
+			images: [`${SITE_URL}/api/screenshots/${id}/light`]
+		}
+	}
+}
+
+export default async function ThemePublicViewPage({ params }: PageProps) {
+	const { id } = await params
+
+	// Fetch theme data for structured data
+	const themeRows = await db
+		.select({
+			name: schema.themes.name,
+			created_at: schema.themes.created_at,
+			updated_at: schema.themes.updated_at,
+			star_count: schema.themes.star_count,
+			username: schema.profiles.username
+		})
+		.from(schema.themes)
+		.innerJoin(
+			schema.profiles,
+			eq(schema.profiles.id, schema.themes.user_id)
 		)
+		.where(eq(schema.themes.id, id))
+		.limit(1)
+
+	if (!themeRows.length) {
+		notFound()
 	}
 
-	const theme = data.theme
-	const isOwner = user && theme.user_id === user.id
+	const theme = themeRows[0]
+	const themeUrl = `${SITE_URL}/themes/${id}`
 
 	return (
-		<ThemeDataProvider id={id}>
-			<div className="container mx-auto px-8 py-8">
-				<div className="mb-8 text-center">
-					<h1 className="text-3xl font-bold mb-2">{theme.name}</h1>
-					<p className="text-muted-foreground">
-						A shadcn theme designed by{' '}
-						<Link
-							href={`/user/${theme.username}`}
-							className="text-primary hover:underline font-medium"
-						>
-							@{theme.username}
-						</Link>
-					</p>
-					<div className="mt-3 flex items-center justify-center gap-2">
-						<StarToggle id={id} variant="outline" />
-						<ForkButton id={id} />
-						<CodeExportButton />
-						{isOwner && (
-							<Button asChild variant="default" size="sm">
-								<Link href={`/themes/${id}/edit`}>
-									<Edit className="mr-1 size-4" />
-									Edit Theme
-								</Link>
-							</Button>
-						)}
-					</div>
-				</div>
-				<div className="max-w-7xl mx-auto">
-					<ExamplesSwitcher
-						rightChildren={<PreviewModeToggle size="sm" />}
-					/>
-				</div>
-			</div>
-		</ThemeDataProvider>
+		<>
+			<CreativeWorkSchema
+				name={theme.name}
+				description={`A shadcn/ui theme by @${theme.username}`}
+				author={theme.username || 'Anonymous'}
+				dateCreated={theme.created_at.toISOString()}
+				dateModified={theme.updated_at.toISOString()}
+				url={themeUrl}
+				image={`${SITE_URL}/api/screenshots/${id}/light`}
+				interactionStatistic={{
+					interactionType: 'https://schema.org/LikeAction',
+					userInteractionCount: Number(theme.star_count)
+				}}
+			/>
+			<BreadcrumbListSchema
+				items={[
+					{ name: 'Home', url: SITE_URL },
+					{ name: 'Themes', url: SITE_URL },
+					{ name: theme.name, url: themeUrl }
+				]}
+			/>
+			<ThemePage id={id} />
+		</>
 	)
 }

@@ -1,17 +1,13 @@
 # Todo
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
-- Better theme customization
-- SEO audit + improvement
-- Opengraph / twitter card
 
 # Low priority
-- Persist activeExample to localstorage and initialize same way we do for previewMode(light/dark)
-- Download/install via shadcn CLI (registry thing ?)
-- Polish UX
 - Add to flamelab projects list
 - Add to mike.gg list ?
 
 # Done
+- SEO audit + improvement (robots.txt, sitemap.xml, metadata, Open Graph, Twitter Cards, structured data)
+- Opengraph / twitter card
 - Font customization (Google Fonts with hover-to-load)
 - Border radius customization (pre-defined settings)
 - Import theme from CSS ability

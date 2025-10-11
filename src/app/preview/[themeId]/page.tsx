@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import * as React from 'react'
 import CardsDemo from '@/components/examples/cards'
 import AuthenticationDemo from '@/components/examples/authentication'
@@ -6,6 +7,14 @@ import DashboardDemoTwo from '@/components/examples/dashboard-1'
 import TasksDemo from '@/components/examples/tasks'
 import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
 import { ThemedScope } from '@/components/themed-scope'
+
+export const metadata: Metadata = {
+	title: 'Theme Preview',
+	robots: {
+		index: false,
+		follow: false
+	}
+}
 
 type PageProps = {
 	params: Promise<{ themeId: string }>

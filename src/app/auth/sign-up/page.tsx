@@ -1,4 +1,15 @@
+import type { Metadata } from 'next'
 import { AuthForm } from '@/components/auth-form'
+
+export const metadata: Metadata = {
+	title: 'Sign Up',
+	description:
+		'Sign up for ShadCN Themer to create, share, and manage your themes',
+	robots: {
+		index: false,
+		follow: false
+	}
+}
 
 export default function Page() {
 	return (

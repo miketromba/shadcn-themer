@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import ExamplesSwitcher from '@/components/examples'
 import { DeleteThemeDialog } from '@/components/theme-editor/delete-theme-dialog'
 import { StarToggle } from '@/components/theme-editor/star-toggle'
@@ -5,6 +6,15 @@ import { CodeExportButton } from '@/components/theme-editor/code-export-button'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Save } from 'lucide-react'
+
+export const metadata: Metadata = {
+	title: 'Edit Theme',
+	description: 'Edit your shadcn/ui theme',
+	robots: {
+		index: false,
+		follow: false
+	}
+}
 
 export default async function ThemePage({
 	params
