@@ -77,7 +77,9 @@ export default function ThemePublicViewPage({
 					</div>
 				</div>
 				<div className="max-w-7xl mx-auto">
-					<ExamplesSwitcher rightChildren={<PreviewModeToggle />} />
+					<ExamplesSwitcher
+						rightChildren={<PreviewModeToggle size="sm" />}
+					/>
 				</div>
 			</div>
 		</ThemeDataProvider>

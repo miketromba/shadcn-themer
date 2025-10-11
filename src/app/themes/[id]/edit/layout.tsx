@@ -43,7 +43,7 @@ export default function ThemeLayout({
 								All Themes
 							</Button>
 						</Link>
-						<PreviewModeToggle />
+						<PreviewModeToggle size="sm" />
 					</SidebarHeader>
 					<SidebarContent>
 						{/* Theme editor */}
