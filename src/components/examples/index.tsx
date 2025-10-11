@@ -9,6 +9,7 @@ import DashboardDemoTwo from '@/components/examples/dashboard-1'
 import TasksDemo from '@/components/examples/tasks'
 import ComponentsShowcase from '@/components/examples/components-showcase'
 import PopoverShowcase from '@/components/examples/popover-showcase'
+import ChartsShowcase from '@/components/examples/charts-showcase'
 import { ThemedScope } from '@/components/themed-scope'
 import { useThemeData } from '@/components/providers/theme-data-provider'
 import { EXAMPLE_IDS } from '@/lib/colorExampleMapping'
@@ -31,6 +32,7 @@ export default function ExamplesSwitcher({
 					<TabsTrigger value={EXAMPLE_IDS.DASHBOARD}>
 						Dashboard
 					</TabsTrigger>
+					<TabsTrigger value={EXAMPLE_IDS.CHARTS}>Charts</TabsTrigger>
 					<TabsTrigger value={EXAMPLE_IDS.TASKS}>Tasks</TabsTrigger>
 					<TabsTrigger value={EXAMPLE_IDS.AUTHENTICATION}>
 						Authentication
@@ -55,6 +57,9 @@ export default function ExamplesSwitcher({
 						</TabsContent>
 						<TabsContent value={EXAMPLE_IDS.DASHBOARD}>
 							<DashboardDemo />
+						</TabsContent>
+						<TabsContent value={EXAMPLE_IDS.CHARTS}>
+							<ChartsShowcase />
 						</TabsContent>
 						<TabsContent value={EXAMPLE_IDS.TASKS}>
 							<TasksDemo />

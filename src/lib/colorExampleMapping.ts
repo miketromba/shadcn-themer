@@ -10,6 +10,7 @@ export const EXAMPLE_IDS = {
 	AUTHENTICATION: 'authentication',
 	COMPONENTS_SHOWCASE: 'components-showcase',
 	POPOVER_SHOWCASE: 'popover-showcase',
+	CHARTS: 'charts',
 	DASH_2: 'dash-2'
 } as const
 
@@ -56,12 +57,12 @@ export const COLOR_EXAMPLE_MAP: Record<ColorKey, ExampleId> = {
 	input: EXAMPLE_IDS.CARDS,
 	ring: EXAMPLE_IDS.CARDS,
 
-	// Charts - Dashboard has charts
-	'chart-1': EXAMPLE_IDS.DASHBOARD,
-	'chart-2': EXAMPLE_IDS.DASHBOARD,
-	'chart-3': EXAMPLE_IDS.DASHBOARD,
-	'chart-4': EXAMPLE_IDS.DASHBOARD,
-	'chart-5': EXAMPLE_IDS.DASHBOARD,
+	// Charts - Dedicated charts showcase
+	'chart-1': EXAMPLE_IDS.CHARTS,
+	'chart-2': EXAMPLE_IDS.CHARTS,
+	'chart-3': EXAMPLE_IDS.CHARTS,
+	'chart-4': EXAMPLE_IDS.CHARTS,
+	'chart-5': EXAMPLE_IDS.CHARTS,
 
 	// Sidebar colors - Dashboard shows sidebar
 	sidebar: EXAMPLE_IDS.DASHBOARD,
