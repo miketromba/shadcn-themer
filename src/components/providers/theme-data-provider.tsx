@@ -21,6 +21,8 @@ type ThemeContextValue = {
 	setPreviewMode: (mode: 'light' | 'dark') => void
 	activeExample: ExampleId
 	setActiveExample: (example: ExampleId) => void
+	editingColorKey: ColorKey | null
+	setEditingColorKey: (key: ColorKey | null) => void
 }
 
 const ThemeDataContext = React.createContext<ThemeContextValue>({
@@ -30,7 +32,9 @@ const ThemeDataContext = React.createContext<ThemeContextValue>({
 	previewMode: 'light',
 	setPreviewMode: () => {},
 	activeExample: EXAMPLE_IDS.CARDS,
-	setActiveExample: () => {}
+	setActiveExample: () => {},
+	editingColorKey: null,
+	setEditingColorKey: () => {}
 })
 
 const PREVIEW_MODE_STORAGE_KEY = 'shadcn-themer-previewMode'
@@ -73,6 +77,8 @@ export function ThemeDataProvider({
 	const [activeExample, setActiveExample] = React.useState<ExampleId>(
 		EXAMPLE_IDS.CARDS
 	)
+	const [editingColorKey, setEditingColorKey] =
+		React.useState<ColorKey | null>(null)
 	const [needsUpdate, setNeedsUpdate] = React.useState<boolean>(false)
 
 	// Persist preview mode changes
@@ -116,9 +122,11 @@ export function ThemeDataProvider({
 			previewMode,
 			setPreviewMode,
 			activeExample,
-			setActiveExample
+			setActiveExample,
+			editingColorKey,
+			setEditingColorKey
 		}),
-		[theme, id, updateVar, previewMode, activeExample]
+		[theme, id, updateVar, previewMode, activeExample, editingColorKey]
 	)
 
 	// Debounced auto-save when theme changes and id is present

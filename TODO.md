@@ -1,4 +1,5 @@
 # Todo
+- Make examples nav list have fade-out horizontal chevron style instead of overflowing
 - Ensure each setting has a suitable preview to visualize it effectively
 - Better theme previews
     - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)

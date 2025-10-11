@@ -27,12 +27,15 @@ import {
 	SidebarHeader,
 	SidebarMenu,
 	SidebarMenuButton,
-	SidebarMenuItem
+	SidebarMenuItem,
+	SidebarInput
 } from '@/components/ui/sidebar'
+import { Badge } from '@/components/ui/badge'
 import { NavDocuments } from '@/components/examples/dashboard/components/nav-documents'
 import { NavMain } from '@/components/examples/dashboard/components/nav-main'
 import { NavSecondary } from '@/components/examples/dashboard/components/nav-secondary'
 import { NavUser } from '@/components/examples/dashboard/components/nav-user'
+import { useThemeData } from '@/components/providers/theme-data-provider'
 
 const data = {
 	user: {
@@ -152,6 +155,10 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const { editingColorKey } = useThemeData()
+	const isEditingSidebarRing = editingColorKey === 'sidebar-ring'
+	const activeMenuButtonRef = React.useRef<HTMLButtonElement>(null)
+
 	return (
 		<Sidebar collapsible="none" className="h-auto border-r" {...props}>
 			<SidebarHeader className="border-b">
@@ -166,17 +173,46 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								<span className="text-base font-semibold">
 									Acme Inc.
 								</span>
+								{/* Status badge using sidebar-primary via Badge component */}
+								<Badge className="ml-auto bg-sidebar-primary text-sidebar-primary-foreground border-sidebar-primary">
+									Pro
+								</Badge>
 							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
+				{/* Search input */}
+				<div className="relative">
+					<IconSearch className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-sidebar-foreground/50 pointer-events-none" />
+					<SidebarInput placeholder="Search..." className="pl-9" />
+				</div>
 			</SidebarHeader>
 			<SidebarContent>
-				<NavMain items={data.navMain} />
-				<NavDocuments items={data.documents} />
+				{/* NavMain with ref to active button - shows sidebar-ring when editing */}
+				<NavMain
+					items={data.navMain}
+					activeButtonRef={activeMenuButtonRef}
+					showActiveRing={isEditingSidebarRing}
+				/>
+				{/* Wrapper div to add border-t and showcase sidebar-border */}
+				<div className="border-t border-sidebar-border pt-2">
+					<NavDocuments items={data.documents} />
+				</div>
 				<NavSecondary items={data.navSecondary} className="mt-auto" />
 			</SidebarContent>
-			<SidebarFooter>
+			<SidebarFooter className="border-t border-sidebar-border">
+				{/* Button to showcase sidebar-border */}
+				<SidebarMenu>
+					<SidebarMenuItem>
+						<SidebarMenuButton
+							variant="outline"
+							tooltip="Quick Settings"
+						>
+							<IconSettings />
+							<span>Quick Settings</span>
+						</SidebarMenuButton>
+					</SidebarMenuItem>
+				</SidebarMenu>
 				<NavUser user={data.user} />
 			</SidebarFooter>
 		</Sidebar>

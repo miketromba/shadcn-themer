@@ -116,7 +116,13 @@ function ColorRow({
 }
 
 export function ThemeEditorSidebar() {
-	const { theme, updateVar, previewMode, setActiveExample } = useThemeData()
+	const {
+		theme,
+		updateVar,
+		previewMode,
+		setActiveExample,
+		setEditingColorKey
+	} = useThemeData()
 	const [editingKey, setEditingKey] = React.useState<ColorKey | null>(null)
 	const defaults = React.useMemo(() => getDefaultShadcnTheme(), [])
 	return (
@@ -167,6 +173,9 @@ export function ThemeEditorSidebar() {
 																	? null
 																	: k
 															setEditingKey(
+																newKey
+															)
+															setEditingColorKey(
 																newKey
 															)
 															// Switch to appropriate example when expanding
