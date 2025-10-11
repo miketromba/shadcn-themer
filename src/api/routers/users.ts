@@ -5,7 +5,6 @@ import { db, schema } from '@/db'
 import { getAuthUser } from '@/api/auth'
 import { eq } from 'drizzle-orm'
 import generateUniqueUsername from '@/lib/generateUniqueUsername'
-import { lower } from '@/db/schema'
 
 export const usersRouter = new Hono()
 	// GET /user/me - current authenticated user's profile
@@ -28,7 +27,7 @@ export const usersRouter = new Hono()
 			return c.json({ error: 'Profile not found' }, 404)
 		}
 
-		let profile = rows[0]
+		const profile = rows[0]
 
 		// If username is missing, attempt to generate and persist one before returning
 		if (!profile.username || profile.username.trim() === '') {

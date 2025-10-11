@@ -101,12 +101,12 @@ export function ThemeDataProvider({
 			options?: { mode?: 'light' | 'dark' }
 		) => {
 			setTheme(prev => {
+				if (!prev) return null
 				const mode = options?.mode || 'light'
 				const next: ShadcnTheme = {
-					light: { ...(prev?.light || {}) },
-					dark: { ...(prev?.dark || {}) }
+					...prev,
+					[mode]: { ...prev[mode], [key]: value }
 				}
-				;(next[mode] as Partial<ShadcnThemeVars>)[key] = value
 				return next
 			})
 			setNeedsUpdate(true)
