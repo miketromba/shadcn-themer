@@ -3,9 +3,13 @@ import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
 	const pathname = request.nextUrl.pathname
-	// Skip auth middleware for API routes and preview/screenshot routes
-	// API routes handle their own auth, preview routes are public
-	if (pathname.startsWith('/api/') || pathname.startsWith('/preview/')) {
+	// Skip auth middleware for API routes, preview/screenshot routes, and registry routes
+	// API routes handle their own auth, preview and registry routes are public
+	if (
+		pathname.startsWith('/api/') ||
+		pathname.startsWith('/preview/') ||
+		pathname.startsWith('/r/')
+	) {
 		return NextResponse.next({ request })
 	}
 	// For all other routes, handle authentication and session updates
