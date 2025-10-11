@@ -1,6 +1,4 @@
 # Todo
-- Make examples nav list have fade-out horizontal chevron style instead of overflowing
-- Ensure each setting has a suitable preview to visualize it effectively
 - Better theme previews
     - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
@@ -19,7 +17,10 @@
 - Add to mike.gg list ?
 
 # Done
+- Make examples nav list fit available width (convert to select with chevrons instead of flat list)
+- Ensure each setting has a suitable preview to visualize it effectively
     - Add popovers example showcase
+    - Add charts example showcase
 - Impl automatic preview example type switching based on which setting is active
 - Fix bug with portaled shadcn ui components within preview example ui's not inheriting custom theme because they got portaled to the document root
 - Fix tasks example in light mode - text doesnt render well in the data table
