@@ -5,6 +5,7 @@ import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
 import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 import { StarToggle } from '@/components/theme-editor/star-toggle'
 import { ForkButton } from '@/components/theme-editor/fork-button'
+import { CodeExportButton } from '@/components/theme-editor/code-export-button'
 import { useTheme } from '@/api/client/themes'
 import { useAuth } from '@/hooks/use-auth'
 import { use } from 'react'
@@ -64,6 +65,7 @@ export default function ThemePublicViewPage({
 					<div className="mt-3 flex items-center justify-center gap-2">
 						<StarToggle id={id} variant="outline" />
 						<ForkButton id={id} />
+						<CodeExportButton />
 						{isOwner && (
 							<Button asChild variant="default" size="sm">
 								<Link href={`/themes/${id}/edit`}>

@@ -33,10 +33,10 @@ export function DeleteThemeDialog({ id }: { id: string }) {
 		<Dialog open={open} onOpenChange={setOpen}>
 			<DialogTrigger asChild>
 				<Button
-					variant="ghost"
-					size="icon"
+					variant="outline"
+					size="sm"
 					aria-label="Delete theme"
-					className="text-muted-foreground hover:text-destructive"
+					className="px-2"
 				>
 					<Trash2 className="size-4" />
 				</Button>

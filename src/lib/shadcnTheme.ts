@@ -2,7 +2,6 @@ import { z } from 'zod'
 
 export const zShadcnThemeVars = z
 	.object({
-		radius: z.string(),
 		background: z.string(),
 		foreground: z.string(),
 		card: z.string(),
@@ -37,8 +36,18 @@ export const zShadcnThemeVars = z
 	})
 	.strict()
 
+export const zShadcnThemeShared = z
+	.object({
+		'font-sans': z.string(),
+		'font-serif': z.string(),
+		'font-mono': z.string(),
+		radius: z.string()
+	})
+	.strict()
+
 export const zShadcnTheme = z
 	.object({
+		theme: zShadcnThemeShared,
 		light: zShadcnThemeVars.partial(),
 		dark: zShadcnThemeVars.partial()
 	})
@@ -46,11 +55,20 @@ export const zShadcnTheme = z
 
 export type ShadcnTheme = z.infer<typeof zShadcnTheme>
 export type ShadcnThemeVars = z.infer<typeof zShadcnThemeVars>
-export type ColorKey = Exclude<keyof ShadcnThemeVars, 'radius'>
+export type ShadcnThemeShared = z.infer<typeof zShadcnThemeShared>
+export type ColorKey = keyof ShadcnThemeVars
 
 export const getDefaultShadcnTheme = (): ShadcnTheme => ({
+	theme: {
+		'font-sans':
+			"ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'",
+		'font-serif':
+			'ui-serif, Georgia, Cambria, "Times New Roman", Times, serif',
+		'font-mono':
+			'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace',
+		radius: '0.625rem'
+	},
 	light: {
-		radius: '0.625rem',
 		background: 'oklch(1 0 0)',
 		foreground: 'oklch(0.145 0 0)',
 		card: 'oklch(1 0 0)',
@@ -257,6 +275,12 @@ export const parseShadcnThemeFromJson = (json: unknown): ShadcnTheme => {
 			console.error('Parsed json is not an object')
 			return out
 		}
+		if (typeof input.theme === 'object' && input.theme !== null) {
+			out.theme = overrideExistingObjectVars(
+				out.theme,
+				input.theme as Record<string, unknown>
+			) as ShadcnThemeShared
+		}
 		if (typeof input.light === 'object' && input.light !== null) {
 			out.light = overrideExistingObjectVars(
 				out.light,
@@ -304,10 +328,13 @@ if (
 		}
 	}
 
+	const defaultTheme = getDefaultShadcnTheme().theme
+
 	// Test 1: Replaces in both :root and .dark blocks
 	run('replaces existing vars in :root and .dark', () => {
 		const css = `:root {\n  --primary: oklch(0.2 0 0);\n}\n.dark {\n  --primary: oklch(0.9 0 0);\n}`
 		const themed = applyShadcnTheme(css, {
+			theme: defaultTheme,
 			light: { primary: 'oklch(0.1 0 0)' },
 			dark: { primary: 'oklch(0.8 0 0)' }
 		})
@@ -319,6 +346,7 @@ if (
 	run('no-ops when .dark block is missing', () => {
 		const css = `:root {\n  --primary: oklch(0.2 0 0);\n}`
 		const themed = applyShadcnTheme(css, {
+			theme: defaultTheme,
 			light: { primary: 'oklch(0.15 0 0)' },
 			dark: { primary: 'oklch(0.85 0 0)' }
 		})
@@ -330,6 +358,7 @@ if (
 	run('skips vars not present in the block', () => {
 		const css = `:root {\n  --ring: oklch(0.7 0 0);\n}`
 		const themed = applyShadcnTheme(css, {
+			theme: defaultTheme,
 			light: { primary: 'oklch(0.12 0 0)' },
 			dark: {}
 		})
@@ -341,6 +370,7 @@ if (
 	run('skips empty arrays and undefined values', () => {
 		const css = `:root {\n  --primary: oklch(0.2 0 0);\n}`
 		const themed = applyShadcnTheme(css, {
+			theme: defaultTheme,
 			light: { primary: '' },
 			dark: undefined as unknown as ThemeVars // ensure type narrow allows undefined handling
 		})

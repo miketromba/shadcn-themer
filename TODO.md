@@ -1,10 +1,9 @@
 # Todo
-- Better theme previews
-    - Upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
+- Import ability (see tweakcn.com modal UX for this)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
 - Better theme customization
     - Font customization
-    - Border radius customization
+    - Border radius customization (pre-defined settings)
     - Spaciousness customization? (padding, 3 settings maybe tight default loose)
 - SEO audit + improvement
 - Opengraph / twitter card
@@ -17,10 +16,15 @@
 - Add to mike.gg list ?
 
 # Done
+- Improve overall UI/UX
+- Export ability
+    - Registry via shadcn CLI
+    - Code (css)
 - Make examples nav list fit available width (convert to select with chevrons instead of flat list)
 - Ensure each setting has a suitable preview to visualize it effectively
     - Add popovers example showcase
     - Add charts example showcase
+- Better theme previews - upon editing each property, ensure the preview mode updates to display a UI where the user can clearly see the changes being made to the theme (same as theme studio does it)
 - Impl automatic preview example type switching based on which setting is active
 - Fix bug with portaled shadcn ui components within preview example ui's not inheriting custom theme because they got portaled to the document root
 - Fix tasks example in light mode - text doesnt render well in the data table

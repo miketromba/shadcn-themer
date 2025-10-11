@@ -11,11 +11,13 @@ import { useAuth } from '@/hooks/use-auth'
 export function StarToggle({
 	id,
 	onClick,
-	variant = 'ghost'
+	variant = 'ghost',
+	showCount = true
 }: {
 	id: string
 	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
 	variant?: 'ghost' | 'outline'
+	showCount?: boolean
 }) {
 	const { data } = useTheme(id)
 	const star = useStarTheme()
@@ -55,19 +57,31 @@ export function StarToggle({
 			}}
 			size="sm"
 			className={
-				isStarred
-					? 'text-yellow-500 hover:text-yellow-500'
-					: 'text-muted-foreground hover:text-foreground'
+				showCount
+					? isStarred
+						? 'text-yellow-500 hover:text-yellow-500'
+						: 'text-muted-foreground hover:text-foreground'
+					: isStarred
+					? 'px-2'
+					: 'px-2'
 			}
 			title={isStarred ? 'Unstar this theme' : 'Star this theme'}
 		>
-			<Star className={isStarred ? 'size-4 fill-yellow-500' : 'size-4'} />
-			<div
-				className="text-sm tabular-nums text-muted-foreground ml-0.5"
-				aria-live="polite"
-			>
-				{starCount}
-			</div>
+			<Star
+				className={
+					isStarred
+						? 'size-4 fill-yellow-500 text-yellow-500'
+						: 'size-4'
+				}
+			/>
+			{showCount && (
+				<div
+					className="text-sm tabular-nums text-muted-foreground ml-0.5"
+					aria-live="polite"
+				>
+					{starCount}
+				</div>
+			)}
 		</Button>
 	)
 }
