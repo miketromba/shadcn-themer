@@ -17,6 +17,7 @@ type ThemeContextValue = {
 		value: string,
 		options?: { mode?: 'light' | 'dark' }
 	) => void
+	updateRadius: (value: string) => void
 	previewMode: 'light' | 'dark'
 	setPreviewMode: (mode: 'light' | 'dark') => void
 	activeExample: ExampleId
@@ -29,6 +30,7 @@ const ThemeDataContext = React.createContext<ThemeContextValue>({
 	theme: getDefaultShadcnTheme(),
 	id: undefined,
 	updateVar: () => {},
+	updateRadius: () => {},
 	previewMode: 'light',
 	setPreviewMode: () => {},
 	activeExample: EXAMPLE_IDS.CARDS,
@@ -114,11 +116,24 @@ export function ThemeDataProvider({
 		[]
 	)
 
+	const updateRadius = React.useCallback((value: string) => {
+		setTheme(prev => {
+			if (!prev) return null
+			const next: ShadcnTheme = {
+				...prev,
+				theme: { ...prev.theme, radius: value }
+			}
+			return next
+		})
+		setNeedsUpdate(true)
+	}, [])
+
 	const ctx: ThemeContextValue = React.useMemo(
 		() => ({
 			theme,
 			id,
 			updateVar,
+			updateRadius,
 			previewMode,
 			setPreviewMode,
 			activeExample,
@@ -126,7 +141,15 @@ export function ThemeDataProvider({
 			editingColorKey,
 			setEditingColorKey
 		}),
-		[theme, id, updateVar, previewMode, activeExample, editingColorKey]
+		[
+			theme,
+			id,
+			updateVar,
+			updateRadius,
+			previewMode,
+			activeExample,
+			editingColorKey
+		]
 	)
 
 	// Debounced auto-save when theme changes and id is present

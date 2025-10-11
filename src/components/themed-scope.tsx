@@ -40,7 +40,23 @@ export function ThemedScope({
 	// Avoid SSR mismatch: default previewMode is light on first render
 	const applied =
 		previewMode === 'dark' ? effectiveTheme?.dark : effectiveTheme?.light
-	const style = React.useMemo(() => varsToInlineStyle(applied), [applied])
+	const colorStyle = React.useMemo(
+		() => varsToInlineStyle(applied),
+		[applied]
+	)
+
+	// Add shared theme properties like radius, fonts
+	const style = React.useMemo(() => {
+		const sharedStyle: React.CSSProperties = {
+			...colorStyle
+		}
+		if (effectiveTheme?.theme?.radius) {
+			;(sharedStyle as unknown as Record<string, string>)['--radius'] =
+				effectiveTheme.theme.radius
+		}
+		return sharedStyle
+	}, [colorStyle, effectiveTheme?.theme?.radius])
+
 	const wrapperClass = previewMode === 'dark' ? 'dark' : undefined
 
 	// Mark when theme is ready for screenshot service
