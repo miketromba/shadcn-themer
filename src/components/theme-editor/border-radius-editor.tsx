@@ -39,7 +39,7 @@ export function BorderRadiusEditor() {
 						key={preset.value}
 						value={preset.value}
 						aria-label={`Border radius ${preset.label}`}
-						className="data-[state=on]:bg-accent/70 transition-colors flex-1"
+						className="data-[state=on]:bg-accent/70 data-[state=off]:text-accent-foreground/75 transition-colors flex-1"
 					>
 						{preset.label}
 					</ToggleGroupItem>
