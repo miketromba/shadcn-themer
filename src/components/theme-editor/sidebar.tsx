@@ -18,6 +18,7 @@ import {
 } from '@/components/theme-editor/oklch-color-picker'
 import { COLOR_EXAMPLE_MAP } from '@/lib/colorExampleMapping'
 import { BorderRadiusEditor } from '@/components/theme-editor/border-radius-editor'
+import { FontEditor } from '@/components/theme-editor/font-editor'
 
 const GROUPS: Array<{ id: string; title: string; keys: ColorKey[] }> = [
 	{
@@ -231,8 +232,9 @@ export function ThemeEditorSidebar() {
 						))}
 					</Accordion>
 				)}
-				<div className="mt-3 mb-6">
+				<div className="mt-3 mb-6 space-y-4">
 					<BorderRadiusEditor />
+					<FontEditor />
 				</div>
 			</div>
 		</ScrollArea>

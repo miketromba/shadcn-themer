@@ -11,10 +11,12 @@ export const EXAMPLE_IDS = {
 	COMPONENTS_SHOWCASE: 'components-showcase',
 	POPOVER_SHOWCASE: 'popover-showcase',
 	CHARTS: 'charts',
-	DASH_2: 'dash-2'
+	DASH_2: 'dash-2',
+	TYPOGRAPHY: 'typography'
 } as const
 
 export type ExampleId = (typeof EXAMPLE_IDS)[keyof typeof EXAMPLE_IDS]
+export type FontType = 'font-sans' | 'font-serif' | 'font-mono'
 
 /**
  * Maps color keys to their best showcase example
@@ -73,4 +75,14 @@ export const COLOR_EXAMPLE_MAP: Record<ColorKey, ExampleId> = {
 	'sidebar-accent-foreground': EXAMPLE_IDS.DASHBOARD,
 	'sidebar-border': EXAMPLE_IDS.DASHBOARD,
 	'sidebar-ring': EXAMPLE_IDS.DASHBOARD
+}
+
+/**
+ * Maps font types to their best showcase example
+ * This helps users visualize font changes in context
+ */
+export const FONT_EXAMPLE_MAP: Record<FontType, ExampleId> = {
+	'font-sans': EXAMPLE_IDS.TYPOGRAPHY,
+	'font-serif': EXAMPLE_IDS.TYPOGRAPHY,
+	'font-mono': EXAMPLE_IDS.TYPOGRAPHY
 }

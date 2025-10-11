@@ -9,6 +9,8 @@ import {
 import { useTheme as useThemeQuery, useUpdateTheme } from '@/api/client/themes'
 import { EXAMPLE_IDS, type ExampleId } from '@/lib/colorExampleMapping'
 
+type FontType = 'font-sans' | 'font-serif' | 'font-mono'
+
 type ThemeContextValue = {
 	theme: ShadcnTheme | null
 	id?: string
@@ -18,6 +20,7 @@ type ThemeContextValue = {
 		options?: { mode?: 'light' | 'dark' }
 	) => void
 	updateRadius: (value: string) => void
+	updateFont: (fontType: FontType, value: string) => void
 	previewMode: 'light' | 'dark'
 	setPreviewMode: (mode: 'light' | 'dark') => void
 	activeExample: ExampleId
@@ -31,6 +34,7 @@ const ThemeDataContext = React.createContext<ThemeContextValue>({
 	id: undefined,
 	updateVar: () => {},
 	updateRadius: () => {},
+	updateFont: () => {},
 	previewMode: 'light',
 	setPreviewMode: () => {},
 	activeExample: EXAMPLE_IDS.CARDS,
@@ -128,12 +132,28 @@ export function ThemeDataProvider({
 		setNeedsUpdate(true)
 	}, [])
 
+	const updateFont = React.useCallback(
+		(fontType: FontType, value: string) => {
+			setTheme(prev => {
+				if (!prev) return null
+				const next: ShadcnTheme = {
+					...prev,
+					theme: { ...prev.theme, [fontType]: value }
+				}
+				return next
+			})
+			setNeedsUpdate(true)
+		},
+		[]
+	)
+
 	const ctx: ThemeContextValue = React.useMemo(
 		() => ({
 			theme,
 			id,
 			updateVar,
 			updateRadius,
+			updateFont,
 			previewMode,
 			setPreviewMode,
 			activeExample,
@@ -146,6 +166,7 @@ export function ThemeDataProvider({
 			id,
 			updateVar,
 			updateRadius,
+			updateFont,
 			previewMode,
 			activeExample,
 			editingColorKey
@@ -172,3 +193,5 @@ export function ThemeDataProvider({
 export function useThemeData(): ThemeContextValue {
 	return React.useContext(ThemeDataContext)
 }
+
+export type { FontType }

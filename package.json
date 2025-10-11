@@ -83,6 +83,7 @@
     "throat": "^6.0.2",
     "unique-username-generator": "^1.5.1",
     "vaul": "^1.1.2",
+    "webfontloader": "^1.6.28",
     "zod": "^4.1.5"
   },
   "devDependencies": {
@@ -92,6 +93,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/webfontloader": "^1.6.38",
     "dotenv": "^17.2.2",
     "drizzle-kit": "^0.31.4",
     "eslint": "^9",

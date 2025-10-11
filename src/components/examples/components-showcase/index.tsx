@@ -149,7 +149,7 @@ export default function ComponentsShowcase() {
 								Cards can contain any content
 							</CardDescription>
 						</CardHeader>
-						<CardContent className="space-y-2">
+						<CardContent className="flex gap-2 flex-wrap">
 							<Badge>Default</Badge>
 							<Badge variant="secondary">Secondary</Badge>
 							<Badge variant="destructive">Destructive</Badge>

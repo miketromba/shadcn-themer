@@ -4,6 +4,7 @@ import * as React from 'react'
 import type { ShadcnTheme } from '@/lib/shadcnTheme'
 import { useThemeData } from '@/components/providers/theme-data-provider'
 import { cn } from '@/lib/utils'
+import { loadThemeFonts } from '@/lib/loadGoogleFont'
 
 type ThemeVars = NonNullable<ShadcnTheme['light']>
 
@@ -54,8 +55,45 @@ export function ThemedScope({
 			;(sharedStyle as unknown as Record<string, string>)['--radius'] =
 				effectiveTheme.theme.radius
 		}
+		if (effectiveTheme?.theme?.['font-sans']) {
+			;(sharedStyle as unknown as Record<string, string>)['--font-sans'] =
+				effectiveTheme.theme['font-sans']
+			// Apply the font-family directly so it cascades to children
+			;(sharedStyle as unknown as Record<string, string>)['fontFamily'] =
+				effectiveTheme.theme['font-sans']
+		}
+		if (effectiveTheme?.theme?.['font-serif']) {
+			;(sharedStyle as unknown as Record<string, string>)[
+				'--font-serif'
+			] = effectiveTheme.theme['font-serif']
+		}
+		if (effectiveTheme?.theme?.['font-mono']) {
+			;(sharedStyle as unknown as Record<string, string>)['--font-mono'] =
+				effectiveTheme.theme['font-mono']
+		}
 		return sharedStyle
-	}, [colorStyle, effectiveTheme?.theme?.radius])
+	}, [
+		colorStyle,
+		effectiveTheme?.theme?.radius,
+		effectiveTheme?.theme?.['font-sans'],
+		effectiveTheme?.theme?.['font-serif'],
+		effectiveTheme?.theme?.['font-mono']
+	])
+
+	// Load custom fonts when theme changes
+	React.useEffect(() => {
+		if (!effectiveTheme?.theme) return
+
+		loadThemeFonts(
+			effectiveTheme.theme['font-sans'],
+			effectiveTheme.theme['font-serif'],
+			effectiveTheme.theme['font-mono']
+		).catch(err => console.warn('Failed to load theme fonts:', err))
+	}, [
+		effectiveTheme?.theme?.['font-sans'],
+		effectiveTheme?.theme?.['font-serif'],
+		effectiveTheme?.theme?.['font-mono']
+	])
 
 	const wrapperClass = previewMode === 'dark' ? 'dark' : undefined
 

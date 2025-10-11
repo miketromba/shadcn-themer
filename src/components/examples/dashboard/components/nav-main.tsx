@@ -47,7 +47,7 @@ export function NavMain({
 							</SidebarMenuButton>
 							{/* Show primary badge on active item to showcase sidebar-primary */}
 							{index === 0 && (
-								<SidebarMenuBadge className="bg-sidebar-primary text-sidebar-primary-foreground">
+								<SidebarMenuBadge className="bg-sidebar-primary !text-sidebar-primary-foreground">
 									New
 								</SidebarMenuBadge>
 							)}

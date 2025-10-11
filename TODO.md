@@ -1,8 +1,6 @@
 # Todo
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
 - Better theme customization
-    - Spaciousness customization? (padding, 3 settings maybe tight default loose)
-    - Font customization
 - SEO audit + improvement
 - Opengraph / twitter card
 
@@ -14,6 +12,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Font customization (Google Fonts with hover-to-load)
 - Border radius customization (pre-defined settings)
 - Import theme from CSS ability
 - Improve overall UI/UX

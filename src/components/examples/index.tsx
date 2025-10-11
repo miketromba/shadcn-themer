@@ -19,6 +19,7 @@ import TasksDemo from '@/components/examples/tasks'
 import ComponentsShowcase from '@/components/examples/components-showcase'
 import PopoverShowcase from '@/components/examples/popover-showcase'
 import ChartsShowcase from '@/components/examples/charts-showcase'
+import TypographyShowcase from '@/components/examples/typography-showcase'
 import { ThemedScope } from '@/components/themed-scope'
 import { useThemeData } from '@/components/providers/theme-data-provider'
 import { EXAMPLE_IDS } from '@/lib/colorExampleMapping'
@@ -32,6 +33,7 @@ const EXAMPLES = [
 	{ id: EXAMPLE_IDS.AUTHENTICATION, label: 'Authentication' },
 	{ id: EXAMPLE_IDS.COMPONENTS_SHOWCASE, label: 'Components' },
 	{ id: EXAMPLE_IDS.POPOVER_SHOWCASE, label: 'Popovers' },
+	{ id: EXAMPLE_IDS.TYPOGRAPHY, label: 'Typography' },
 	{ id: EXAMPLE_IDS.DASH_2, label: 'Other Dashboard' }
 ] as const
 
@@ -125,6 +127,9 @@ export default function ExamplesSwitcher({
 						</TabsContent>
 						<TabsContent value={EXAMPLE_IDS.POPOVER_SHOWCASE}>
 							<PopoverShowcase />
+						</TabsContent>
+						<TabsContent value={EXAMPLE_IDS.TYPOGRAPHY}>
+							<TypographyShowcase />
 						</TabsContent>
 						<TabsContent value={EXAMPLE_IDS.DASH_2}>
 							<DashboardDemoTwo />
