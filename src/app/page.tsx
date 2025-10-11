@@ -3,6 +3,7 @@
 import * as React from 'react'
 import { ThemesFeed } from '@/components/themes-feed'
 import { CreateThemeButton } from '@/components/create-theme-button'
+import { ImportThemeButton } from '@/components/import-theme-button'
 import { ColorBucketFilter } from '@/components/color-bucket-filter'
 import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 
@@ -18,7 +19,10 @@ export default function Home() {
 						Discover and create beautiful themes for shadcn/ui
 					</p>
 				</div>
-				<CreateThemeButton />
+				<div className="flex items-center gap-3">
+					<ImportThemeButton />
+					<CreateThemeButton />
+				</div>
 			</div>
 
 			<div className="mb-6 flex items-end justify-between gap-4">

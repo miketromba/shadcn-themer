@@ -1,5 +1,4 @@
 # Todo
-- Import ability (see tweakcn.com modal UX for this)
 - Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
 - Better theme customization
     - Font customization
@@ -16,6 +15,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Import theme from CSS ability
 - Improve overall UI/UX
 - Export ability
     - Registry via shadcn CLI

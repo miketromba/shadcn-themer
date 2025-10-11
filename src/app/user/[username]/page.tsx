@@ -2,6 +2,7 @@
 
 import { ThemesFeed } from '@/components/themes-feed'
 import { CreateThemeButton } from '@/components/create-theme-button'
+import { ImportThemeButton } from '@/components/import-theme-button'
 import { PreviewModeToggle } from '@/components/preview-mode-toggle'
 import { use } from 'react'
 
@@ -27,6 +28,7 @@ export default function UserThemesPage({ params }: PageProps) {
 				</div>
 				<div className="flex items-center gap-3">
 					<PreviewModeToggle />
+					<ImportThemeButton />
 					<CreateThemeButton />
 				</div>
 			</div>

@@ -9,6 +9,7 @@ import { QueryProvider } from '@/components/providers/query-provider'
 import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
 import { AuthModalProvider } from '@/components/providers/auth-modal-provider'
 import { AuthModal } from '@/components/auth-modal'
+import { Toaster } from '@/components/ui/sonner'
 
 const defaultUrl = process.env.VERCEL_URL
 	? `https://${process.env.VERCEL_URL}`
@@ -49,6 +50,7 @@ export default function RootLayout({
 									<SiteFooter />
 								</main>
 								<AuthModal />
+								<Toaster />
 							</ThemeDataProvider>
 						</AuthModalProvider>
 					</QueryProvider>
