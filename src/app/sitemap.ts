@@ -4,6 +4,9 @@ import { desc } from 'drizzle-orm'
 
 const SITE_URL = 'https://shadcnthemer.com'
 
+// Force dynamic rendering - sitemap is generated on-demand, not at build time
+export const dynamic = 'force-dynamic'
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 	// Static pages
 	const staticPages: MetadataRoute.Sitemap = [
