@@ -13,7 +13,7 @@
     "db:migrate": "drizzle-kit migrate --config=./src/db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config=./src/db/drizzle.config.ts",
     "db:seed": "tsx --env-file=.env src/scripts/seed-db.ts",
-    "postinstall": "sh -c 'if [ \"$NODE_ENV\" != \"production\" ]; then if [ ! -d .screenshot-service ]; then git clone https://github.com/miketromba/screenshot-service.git .screenshot-service; fi && cd .screenshot-service && pnpm docker:build; fi'",
+    "init-screenshot-service": "sh -c 'if [ \"$NODE_ENV\" != \"production\" ]; then if [ ! -d .screenshot-service ]; then git clone https://github.com/miketromba/screenshot-service.git .screenshot-service; fi && cd .screenshot-service && pnpm docker:build; fi'",
     "ss:dev": "docker run --rm -it --add-host=host.docker.internal:host-gateway -p 3006:3000 -e NODE_ENV=development -e AUTH_TOKEN=dev-token -e HOST_WHITELIST=host.docker.internal screenshot-service"
   },
   "dependencies": {
