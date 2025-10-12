@@ -8,6 +8,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { ThemeDataProvider } from '@/components/providers/theme-data-provider'
 import { AuthModalProvider } from '@/components/providers/auth-modal-provider'
+import { AuthProvider } from '@/components/providers/auth-provider'
 import { AuthModal } from '@/components/auth-modal'
 import { Toaster } from '@/components/ui/sonner'
 import { OrganizationSchema } from '@/components/structured-data'
@@ -120,17 +121,19 @@ export default function RootLayout({
 					disableTransitionOnChange
 				>
 					<QueryProvider>
-						<AuthModalProvider>
-							<ThemeDataProvider>
-								<main className="min-h-screen flex flex-col">
-									<SiteHeader />
-									<div className="flex-1">{children}</div>
-									<SiteFooter />
-								</main>
-								<AuthModal />
-								<Toaster />
-							</ThemeDataProvider>
-						</AuthModalProvider>
+						<AuthProvider>
+							<AuthModalProvider>
+								<ThemeDataProvider>
+									<main className="min-h-screen flex flex-col">
+										<SiteHeader />
+										<div className="flex-1">{children}</div>
+										<SiteFooter />
+									</main>
+									<AuthModal />
+									<Toaster />
+								</ThemeDataProvider>
+							</AuthModalProvider>
+						</AuthProvider>
 					</QueryProvider>
 				</ThemeProvider>
 				<GoogleAnalytics gaId="G-C680Z7LJTK" />
