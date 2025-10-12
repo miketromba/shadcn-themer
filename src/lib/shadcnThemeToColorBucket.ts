@@ -1,5 +1,9 @@
 import Color from 'colorjs.io'
-import { ShadcnTheme, ShadcnThemeVars } from './shadcnTheme'
+import {
+	ShadcnTheme,
+	ShadcnThemeVars,
+	getDefaultShadcnTheme
+} from './shadcnTheme'
 
 export type Bucket =
 	| 'red'
@@ -272,6 +276,7 @@ if (
 	// Test 11: Theme with blue primary should bucket as blue
 	run('theme with blue primary buckets as blue', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {
 				primary: 'oklch(0.5 0.2 240)'
 			},
@@ -286,6 +291,7 @@ if (
 	// Test 12: Theme with red accent should bucket as red
 	run('theme with red accent buckets as red', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {
 				primary: 'oklch(0.5 0.01 0)', // neutral
 				accent: 'oklch(0.6 0.22 20)' // red
@@ -300,6 +306,7 @@ if (
 	// Test 13: Theme prefers higher chroma candidate
 	run('theme prefers higher chroma color', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {
 				primary: 'oklch(0.6 0.1 240)', // lower chroma blue
 				accent: 'oklch(0.6 0.25 20)' // higher chroma red
@@ -314,6 +321,7 @@ if (
 	// Test 14: All-neutral theme should fall back gracefully
 	run('all-neutral theme falls back to gray', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {
 				primary: 'oklch(0.5 0.01 0)',
 				accent: 'oklch(0.7 0.01 0)',
@@ -332,6 +340,7 @@ if (
 	// Test 15: Dark mode with colorful primary should be detected
 	run('dark mode colorful primary is detected', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {},
 			dark: {
 				primary: 'oklch(0.7 0.2 145)' // green
@@ -345,6 +354,7 @@ if (
 	// Test 16: Non-candidate colors are ignored (chart colors no longer candidates)
 	run('non-candidate colors are ignored', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {
 				primary: 'oklch(0.5 0.01 0)', // neutral
 				accent: 'oklch(0.65 0.2 290)', // purple
@@ -370,6 +380,7 @@ if (
 	// Test 18: Empty theme should return gray bucket
 	run('empty theme returns gray bucket', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {},
 			dark: {}
 		}
@@ -387,6 +398,7 @@ if (
 	// Test 20: Sidebar-primary can be the bucket source
 	run('sidebar-primary can determine bucket', () => {
 		const theme: ShadcnTheme = {
+			...getDefaultShadcnTheme(),
 			light: {
 				'sidebar-primary': 'oklch(0.6 0.2 190)' // teal
 			},
