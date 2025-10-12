@@ -12,13 +12,17 @@ type ThemePreviewCardProps = {
 	name: string
 	version?: number
 	username: string | null
+	starCount: number
+	isStarred: boolean
 }
 
 export function ThemePreviewCard({
 	id,
 	name,
 	version,
-	username
+	username,
+	starCount,
+	isStarred
 }: ThemePreviewCardProps) {
 	const router = useRouter()
 	const { previewMode } = useThemeData()
@@ -65,6 +69,8 @@ export function ThemePreviewCard({
 					</div>
 					<StarToggle
 						id={id}
+						initialStarCount={starCount}
+						initialIsStarred={isStarred}
 						onClick={e => {
 							e.stopPropagation()
 						}}

@@ -1,6 +1,7 @@
 'use client'
 
 import {
+	InfiniteData,
 	useInfiniteQuery,
 	useMutation,
 	useQuery,
@@ -141,6 +142,34 @@ export function useTheme(id: string | undefined) {
 	})
 }
 
+// Helper function to update themes list cache with star data
+function updateThemesListStarData(
+	qc: ReturnType<typeof useQueryClient>,
+	themeId: string,
+	updater: (item: { star_count: number; is_starred: boolean }) => {
+		star_count: number
+		is_starred: boolean
+	}
+) {
+	qc.setQueriesData<InfiniteData<ThemesListResponse>>(
+		{ queryKey: ['themes'] },
+		oldData => {
+			if (!oldData) return oldData
+			return {
+				...oldData,
+				pages: oldData.pages.map(page => ({
+					...page,
+					items: page.items.map(item =>
+						item.id === themeId
+							? { ...item, ...updater(item) }
+							: item
+					)
+				}))
+			}
+		}
+	)
+}
+
 export function useStarTheme() {
 	const qc = useQueryClient()
 	return useMutation({
@@ -154,6 +183,8 @@ export function useStarTheme() {
 		onMutate: async ({ id }) => {
 			await qc.cancelQueries({ queryKey: ['theme', id] })
 			const prevTheme = qc.getQueryData<ThemeResponse>(['theme', id])
+
+			// Optimistically update single theme cache
 			if (prevTheme && 'theme' in prevTheme) {
 				qc.setQueryData<ThemeResponse>(['theme', id], {
 					...prevTheme,
@@ -164,14 +195,23 @@ export function useStarTheme() {
 					}
 				})
 			}
+
+			// Optimistically update themes list cache
+			updateThemesListStarData(qc, id, item => ({
+				star_count: item.star_count + 1,
+				is_starred: true
+			}))
+
 			return { prevTheme }
 		},
 		onError: (_err, { id }, ctx) => {
 			if (ctx?.prevTheme) {
 				qc.setQueryData(['theme', id], ctx.prevTheme)
 			}
+			qc.invalidateQueries({ queryKey: ['themes'] })
 		},
 		onSuccess: (data, { id }) => {
+			// Update single theme cache with server data
 			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
 				prev && 'theme' in prev
 					? {
@@ -184,6 +224,12 @@ export function useStarTheme() {
 					  }
 					: prev
 			)
+
+			// Update themes list with server data
+			updateThemesListStarData(qc, id, () => ({
+				star_count: data.star_count,
+				is_starred: true
+			}))
 		}
 	})
 }
@@ -206,6 +252,8 @@ export function useUnstarTheme() {
 		onMutate: async ({ id }) => {
 			await qc.cancelQueries({ queryKey: ['theme', id] })
 			const prevTheme = qc.getQueryData<ThemeResponse>(['theme', id])
+
+			// Optimistically update single theme cache
 			if (prevTheme && 'theme' in prevTheme) {
 				qc.setQueryData<ThemeResponse>(['theme', id], {
 					...prevTheme,
@@ -216,14 +264,23 @@ export function useUnstarTheme() {
 					}
 				})
 			}
+
+			// Optimistically update themes list cache
+			updateThemesListStarData(qc, id, item => ({
+				star_count: Math.max(item.star_count - 1, 0),
+				is_starred: false
+			}))
+
 			return { prevTheme }
 		},
 		onError: (_err, { id }, ctx) => {
 			if (ctx?.prevTheme) {
 				qc.setQueryData(['theme', id], ctx.prevTheme)
 			}
+			qc.invalidateQueries({ queryKey: ['themes'] })
 		},
 		onSuccess: (data, { id }) => {
+			// Update single theme cache with server data
 			qc.setQueryData<ThemeResponse>(['theme', id], prev =>
 				prev && 'theme' in prev
 					? {
@@ -236,6 +293,12 @@ export function useUnstarTheme() {
 					  }
 					: prev
 			)
+
+			// Update themes list with server data
+			updateThemesListStarData(qc, id, () => ({
+				star_count: data.star_count,
+				is_starred: false
+			}))
 		}
 	})
 }

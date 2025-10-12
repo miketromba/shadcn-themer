@@ -12,24 +12,39 @@ export function StarToggle({
 	id,
 	onClick,
 	variant = 'ghost',
-	showCount = true
+	showCount = true,
+	initialStarCount,
+	initialIsStarred
 }: {
 	id: string
 	onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void
 	variant?: 'ghost' | 'outline'
 	showCount?: boolean
+	initialStarCount?: number
+	initialIsStarred?: boolean
 }) {
-	const { data } = useTheme(id)
+	// Only fetch theme data if initial values are not provided
+	const { data } = useTheme(
+		initialStarCount === undefined || initialIsStarred === undefined
+			? id
+			: undefined
+	)
 	const star = useStarTheme()
 	const unstar = useUnstarTheme()
 	const { openAuthModal } = useAuthModal()
 	const { user } = useAuth()
 
+	// Use initial values if provided, otherwise fall back to fetched data
 	const starCount =
-		typeof data?.theme?.star_count === 'number'
+		initialStarCount !== undefined
+			? initialStarCount
+			: typeof data?.theme?.star_count === 'number'
 			? (data.theme.star_count as number)
 			: 0
-	const isStarred = Boolean(data?.theme?.is_starred)
+	const isStarred =
+		initialIsStarred !== undefined
+			? initialIsStarred
+			: Boolean(data?.theme?.is_starred)
 
 	const isPending = star.isPending || unstar.isPending
 

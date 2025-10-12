@@ -93,6 +93,15 @@ export const themesRouter = new Hono()
 						: and(...whereClauses)
 			}
 
+			// Get user if authenticated (optional)
+			let userId: string | null = null
+			try {
+				const user = await getAuthUser(c)
+				userId = user.id
+			} catch {
+				// Not authenticated, continue without user
+			}
+
 			const rows = await db
 				.select({
 					id: schema.themes.id,
@@ -101,7 +110,10 @@ export const themesRouter = new Hono()
 					created_at: schema.themes.created_at,
 					star_count: schema.themes.star_count,
 					version: schema.themes.version,
-					username: schema.profiles.username
+					username: schema.profiles.username,
+					is_starred: userId
+						? sql<boolean>`EXISTS (SELECT 1 FROM ${schema.stars} AS s WHERE s.theme_id = ${schema.themes.id} AND s.user_id = ${userId})`
+						: sql<boolean>`false`
 				})
 				.from(schema.themes)
 				.innerJoin(
@@ -133,7 +145,8 @@ export const themesRouter = new Hono()
 				created_at: r.created_at ? r.created_at.toISOString() : null,
 				star_count: Number(r.star_count) || 0,
 				version: Number(r.version) || 1,
-				username: r.username ?? null
+				username: r.username ?? null,
+				is_starred: Boolean(r.is_starred)
 			}))
 
 			const nextPageToken =
