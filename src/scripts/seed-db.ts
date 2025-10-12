@@ -8,6 +8,7 @@ import throat from 'throat'
 import { db, schema } from '@/db'
 import { parseShadcnThemeFromJson } from '@/lib/shadcnTheme'
 import { themeSeeds, OWNER_ID } from '@/data/theme-seeds'
+import { vscodeThemesForSeeding } from '@/data/vscode-seeds'
 import { eq, and } from 'drizzle-orm'
 
 type Seed = {
@@ -48,12 +49,15 @@ async function upsertTheme(
 }
 
 async function main(): Promise<void> {
+	// Combine all seed sources
+	const allSeeds = [...themeSeeds, ...vscodeThemesForSeeding]
+
 	console.log(
-		`Seeding ${themeSeeds.length} theme(s) with concurrency=${CONCURRENCY}...`
+		`Seeding ${allSeeds.length} theme(s) (${themeSeeds.length} manual + ${vscodeThemesForSeeding.length} VSCode) with concurrency=${CONCURRENCY}...`
 	)
 	const run = throat(CONCURRENCY)
 	const results = await Promise.all(
-		themeSeeds.map(seed => run(() => upsertTheme(seed)))
+		allSeeds.map(seed => run(() => upsertTheme(seed)))
 	)
 	const inserted = results.filter(r => r.status === 'inserted').length
 	const skipped = results.filter(r => r.status === 'skipped').length

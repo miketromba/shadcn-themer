@@ -77,7 +77,7 @@ export function ThemeDataProvider({
 					if (saved === 'light' || saved === 'dark') return saved
 				} catch {}
 			}
-			return 'light'
+			return 'dark'
 		}
 	)
 	const [activeExample, setActiveExample] = React.useState<ExampleId>(

@@ -6,6 +6,7 @@
 - Add to mike.gg list ?
 
 # Done
+- Seed with 50ish themes
 - SEO audit + improvement (robots.txt, sitemap.xml, metadata, Open Graph, Twitter Cards, structured data)
 - Opengraph / twitter card
 - Font customization (Google Fonts with hover-to-load)
