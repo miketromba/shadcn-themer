@@ -11,9 +11,12 @@ if (!connectionString) {
 	throw new Error('DATABASE_URL is not set')
 }
 
-// Disable prefetch as it is not supported for "Transaction" pool mode
+// Serverless-optimized configuration for postgres-js
 export const client = postgres(connectionString, {
-	prepare: false,
+	prepare: false, // Required for pgBouncer/transaction pooler
+	max: 1, // Serverless: Use only 1 connection per instance
+	idle_timeout: 20, // Close idle connections after 20 seconds
+	connect_timeout: 10, // Timeout connection attempts after 10 seconds
 	ssl: {
 		rejectUnauthorized: false
 	}
