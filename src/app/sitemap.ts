@@ -40,8 +40,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 			updated_at: schema.themes.updated_at
 		})
 		.from(schema.themes)
-		.orderBy(desc(schema.themes.updated_at))
-		.limit(5000) // Sitemap limit
+		.orderBy(desc(schema.themes.star_count), desc(schema.themes.updated_at))
+		.limit(1000) // Sitemap limit
 
 	const themePages: MetadataRoute.Sitemap = themes.map(theme => ({
 		url: `${SITE_URL}/themes/${theme.id}`,
