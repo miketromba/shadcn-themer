@@ -19,6 +19,11 @@ type ThemeContextValue = {
 		value: string,
 		options?: { mode?: 'light' | 'dark' }
 	) => void
+	updateVarDirect: (
+		key: ColorKey,
+		value: string,
+		options?: { mode?: 'light' | 'dark' }
+	) => void
 	updateRadius: (value: string) => void
 	updateFont: (fontType: FontType, value: string) => void
 	previewMode: 'light' | 'dark'
@@ -27,12 +32,14 @@ type ThemeContextValue = {
 	setActiveExample: (example: ExampleId) => void
 	editingColorKey: ColorKey | null
 	setEditingColorKey: (key: ColorKey | null) => void
+	themedScopeRef: React.MutableRefObject<HTMLDivElement | null>
 }
 
 const ThemeDataContext = React.createContext<ThemeContextValue>({
 	theme: getDefaultShadcnTheme(),
 	id: undefined,
 	updateVar: () => {},
+	updateVarDirect: () => {},
 	updateRadius: () => {},
 	updateFont: () => {},
 	previewMode: 'light',
@@ -40,7 +47,8 @@ const ThemeDataContext = React.createContext<ThemeContextValue>({
 	activeExample: EXAMPLE_IDS.CARDS,
 	setActiveExample: () => {},
 	editingColorKey: null,
-	setEditingColorKey: () => {}
+	setEditingColorKey: () => {},
+	themedScopeRef: { current: null }
 })
 
 const PREVIEW_MODE_STORAGE_KEY = 'shadcn-themer-previewMode'
@@ -86,6 +94,7 @@ export function ThemeDataProvider({
 	const [editingColorKey, setEditingColorKey] =
 		React.useState<ColorKey | null>(null)
 	const [needsUpdate, setNeedsUpdate] = React.useState<boolean>(false)
+	const themedScopeRef = React.useRef<HTMLDivElement | null>(null)
 
 	// Persist preview mode changes
 	React.useEffect(() => {
@@ -99,6 +108,20 @@ export function ThemeDataProvider({
 	React.useEffect(() => {
 		if (remoteThemeJson) setTheme(remoteThemeJson)
 	}, [remoteThemeJson])
+
+	const updateVarDirect = React.useCallback(
+		(
+			key: ColorKey,
+			value: string,
+			_options?: { mode?: 'light' | 'dark' }
+		) => {
+			// Directly update CSS variable in the DOM without triggering React re-render
+			if (themedScopeRef.current) {
+				themedScopeRef.current.style.setProperty(`--${key}`, value)
+			}
+		},
+		[]
+	)
 
 	const updateVar = React.useCallback(
 		(
@@ -152,6 +175,7 @@ export function ThemeDataProvider({
 			theme,
 			id,
 			updateVar,
+			updateVarDirect,
 			updateRadius,
 			updateFont,
 			previewMode,
@@ -159,12 +183,14 @@ export function ThemeDataProvider({
 			activeExample,
 			setActiveExample,
 			editingColorKey,
-			setEditingColorKey
+			setEditingColorKey,
+			themedScopeRef
 		}),
 		[
 			theme,
 			id,
 			updateVar,
+			updateVarDirect,
 			updateRadius,
 			updateFont,
 			previewMode,

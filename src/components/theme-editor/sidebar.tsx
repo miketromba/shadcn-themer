@@ -121,6 +121,7 @@ export function ThemeEditorSidebar() {
 	const {
 		theme,
 		updateVar,
+		updateVarDirect,
 		previewMode,
 		setActiveExample,
 		setEditingColorKey
@@ -206,6 +207,23 @@ export function ThemeEditorSidebar() {
 																	displayValue
 																}
 																onChange={v => {
+																	// Real-time DOM update during drag (no React re-render)
+																	const next =
+																		toOKLCHString(
+																			v.l,
+																			v.c,
+																			v.h
+																		)
+																	updateVarDirect(
+																		k,
+																		next,
+																		{
+																			mode: previewMode
+																		}
+																	)
+																}}
+																onChangeCommitted={v => {
+																	// Commit to React state when dragging stops
 																	const next =
 																		toOKLCHString(
 																			v.l,

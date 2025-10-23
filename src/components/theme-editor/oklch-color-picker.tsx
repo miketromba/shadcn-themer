@@ -9,6 +9,7 @@ type Oklch = { l: number; c: number; h: number }
 export type OklchColorPickerProps = {
 	value: Oklch
 	onChange?: (value: Oklch) => void
+	onChangeCommitted?: (value: Oklch) => void
 	className?: string
 	debounceMs?: number
 	withInput?: boolean
@@ -123,6 +124,7 @@ const toOKLCHFromHex = (hex: string): Oklch => {
 export function OklchColorPicker({
 	value,
 	onChange,
+	onChangeCommitted,
 	className,
 	debounceMs = 150,
 	withInput = true,
@@ -141,6 +143,9 @@ export function OklchColorPicker({
 	const [hex, setHex] = React.useState<string>(initialHex)
 	const lastLocalChangeRef = React.useRef<number>(0)
 	const rafRef = React.useRef<number | null>(null)
+	const commitTimeoutRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+		null
+	)
 	const interactionHoldMs = 250
 
 	// keep internal hex in sync when external oklch changes, unless there was a recent local change
@@ -159,6 +164,8 @@ export function OklchColorPicker({
 	React.useEffect(
 		() => () => {
 			if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
+			if (commitTimeoutRef.current !== null)
+				clearTimeout(commitTimeoutRef.current)
 		},
 		[]
 	)
@@ -168,15 +175,31 @@ export function OklchColorPicker({
 			lastLocalChangeRef.current = Date.now()
 			const normalized = normalizeHex(next)
 			setHex(normalized)
-			if (!onChange) return
+
 			if (normalized.toLowerCase() === externalHex.toLowerCase()) return
-			if (rafRef.current !== null) cancelAnimationFrame(rafRef.current)
-			rafRef.current = requestAnimationFrame(() => {
-				const o = toOKLCHFromHex(normalized)
-				onChange(o)
-			})
+
+			const o = toOKLCHFromHex(normalized)
+
+			// Call onChange immediately for real-time updates (no React state updates)
+			if (onChange) {
+				if (rafRef.current !== null)
+					cancelAnimationFrame(rafRef.current)
+				rafRef.current = requestAnimationFrame(() => {
+					onChange(o)
+				})
+			}
+
+			// Schedule onChangeCommitted after user stops changing
+			if (onChangeCommitted) {
+				if (commitTimeoutRef.current !== null) {
+					clearTimeout(commitTimeoutRef.current)
+				}
+				commitTimeoutRef.current = setTimeout(() => {
+					onChangeCommitted(o)
+				}, debounceMs)
+			}
 		},
-		[externalHex, onChange]
+		[externalHex, onChange, onChangeCommitted, debounceMs]
 	)
 
 	return (

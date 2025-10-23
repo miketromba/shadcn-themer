@@ -34,7 +34,7 @@ export function ThemedScope({
 	children: React.ReactNode
 	theme?: ShadcnTheme
 }) {
-	const { theme: ctxTheme, previewMode } = useThemeData()
+	const { theme: ctxTheme, previewMode, themedScopeRef } = useThemeData()
 	const effectiveTheme = theme ?? ctxTheme
 	const portalContainerRef = React.useRef<HTMLDivElement>(null)
 
@@ -102,6 +102,7 @@ export function ThemedScope({
 
 	return (
 		<div
+			ref={themedScopeRef}
 			className={wrapperClass}
 			style={style}
 			data-theme-ready={isThemeReady ? 'true' : 'false'}
