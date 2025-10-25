@@ -1,9 +1,7 @@
-# Todo
-- Open source it
-- Promo uxcanvas (readme + on site)
-- Integrate with uxcanvas
+tailwind
 
 # Done
+- Open source it
 - Add to mike.gg
 - Add to flamelab projects list
 - Seed with 50ish themes
