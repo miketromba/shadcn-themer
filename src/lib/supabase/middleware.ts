@@ -55,7 +55,10 @@ export async function updateSession(request: NextRequest) {
 		pathname.startsWith('/auth') ||
 		pathname.startsWith('/login') ||
 		(pathname.startsWith('/themes/') && !pathname.includes('/edit')) || // Public theme view, but not edit
-		pathname.startsWith('/user/') // Public user profile/themes pages
+		pathname.startsWith('/user/') || // Public user profile/themes pages
+		pathname === '/terms' ||
+		pathname === '/privacy' ||
+		pathname === '/contact'
 
 	if (!user && !isPublicRoute) {
 		// no user, potentially respond by redirecting the user to the login page
