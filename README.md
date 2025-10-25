@@ -41,8 +41,8 @@ Shadcn Themer is a web application that allows you to create, customize, and sha
 
 ## Support
 
-- 🐛 Found a bug? [Open an issue](https://github.com/yourusername/shadcn-theme-maker/issues)
-- 💡 Have a feature request? [Start a discussion](https://github.com/yourusername/shadcn-theme-maker/discussions)
+- 🐛 Found a bug? [Open an issue](https://github.com/miketromba/shadcn-themer/issues)
+- 💡 Have a feature request? [Start a discussion](https://github.com/miketromba/shadcn-themer/discussions)
 
 ---
 

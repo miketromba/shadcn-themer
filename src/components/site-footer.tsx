@@ -4,6 +4,7 @@ import { SiteLogo } from '@/components/site-logo'
 import { CreateThemeButton } from '@/components/create-theme-button'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
+import { GitHubButton } from '@/components/github-button'
 
 export function SiteFooter() {
 	const pathname = usePathname()
@@ -26,6 +27,14 @@ export function SiteFooter() {
 							shadcn/ui. Build your perfect color palette with our
 							intuitive theme editor.
 						</p>
+						<div className="mt-4">
+							<GitHubButton
+								owner="miketromba"
+								repo="shadcn-themer"
+								variant="outline"
+								size="default"
+							/>
+						</div>
 					</div>
 
 					{/* CTA and Links */}

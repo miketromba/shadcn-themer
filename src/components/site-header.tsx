@@ -9,6 +9,7 @@ import { useCurrentUserProfile } from '@/api/client/users'
 import { useAuth } from '@/hooks/use-auth'
 import Link from 'next/link'
 import { LayoutGrid, User } from 'lucide-react'
+import { GitHubButton } from '@/components/github-button'
 
 export function SiteHeader() {
 	const pathname = usePathname()
@@ -58,6 +59,15 @@ export function SiteHeader() {
 					)}
 				</div>
 				<div className="flex-1 flex justify-end items-center gap-2">
+					<GitHubButton
+						owner="miketromba"
+						repo="shadcn-themer"
+						variant="outline"
+						size="sm"
+						compact
+						className="hidden sm:flex"
+						showStars={false}
+					/>
 					{user &&
 						pathname !== '/' &&
 						!pathname?.startsWith('/user/') && (
