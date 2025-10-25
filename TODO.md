@@ -1,11 +1,11 @@
 # Todo
-- Themes API (for integration with UX Canvas) - just store env var API_KEY_FOR_UXCANVAS
-
-# Low priority
-- Add to flamelab projects list
-- Add to mike.gg list ?
+- Open source it
+- Promo uxcanvas (readme + on site)
+- Integrate with uxcanvas
 
 # Done
+- Add to mike.gg
+- Add to flamelab projects list
 - Seed with 50ish themes
 - SEO audit + improvement (robots.txt, sitemap.xml, metadata, Open Graph, Twitter Cards, structured data)
 - Opengraph / twitter card
