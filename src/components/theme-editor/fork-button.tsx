@@ -7,16 +7,7 @@ import { useForkTheme } from '@/api/client/themes'
 import { hasLocalTheme, setLocalTheme } from '@/lib/localTheme'
 import { useRouter } from 'next/navigation'
 import { useState } from 'react'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle
-} from '@/components/ui/alert-dialog'
+import { LocalThemeConfirmDialog } from '@/components/local-theme-confirm-dialog'
 import { useTheme } from '@/api/client/themes'
 
 export function ForkButton({ id }: { id: string }) {
@@ -32,11 +23,6 @@ export function ForkButton({ id }: { id: string }) {
 
 		setIsNavigating(true)
 		setLocalTheme(themeData.theme.json, `Fork of ${themeData.theme.name}`)
-		router.push('/themes/local/edit')
-	}
-
-	const continueEditingLocalTheme = () => {
-		setIsNavigating(true)
 		router.push('/themes/local/edit')
 	}
 
@@ -75,41 +61,13 @@ export function ForkButton({ id }: { id: string }) {
 				Fork
 			</Button>
 
-			<AlertDialog
+			<LocalThemeConfirmDialog
 				open={showConfirmDialog}
 				onOpenChange={setShowConfirmDialog}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Theme in Progress</AlertDialogTitle>
-						<AlertDialogDescription>
-							You already have a theme in progress. Would you like
-							to continue editing it or fork this theme? Forking
-							will replace your current work.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<Button
-							variant="outline"
-							onClick={() => {
-								setShowConfirmDialog(false)
-								continueEditingLocalTheme()
-							}}
-						>
-							Continue Editing
-						</Button>
-						<AlertDialogAction
-							onClick={() => {
-								setShowConfirmDialog(false)
-								forkToLocal()
-							}}
-						>
-							Fork Theme
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				onConfirm={forkToLocal}
+				actionLabel="Fork Theme"
+				description="You already have a theme in progress. Would you like to continue editing it or fork this theme? Forking will replace your current work."
+			/>
 		</>
 	)
 }

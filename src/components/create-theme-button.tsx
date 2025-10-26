@@ -8,16 +8,7 @@ import { cn } from '@/lib/utils'
 import { useRouter } from 'next/navigation'
 import { initializeLocalTheme, hasLocalTheme } from '@/lib/localTheme'
 import { useState } from 'react'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle
-} from '@/components/ui/alert-dialog'
+import { LocalThemeConfirmDialog } from '@/components/local-theme-confirm-dialog'
 
 interface CreateThemeButtonProps {
 	size?: 'default' | 'sm' | 'lg' | 'icon'
@@ -49,11 +40,6 @@ export function CreateThemeButton({
 	const createNewLocalTheme = () => {
 		setIsNavigating(true)
 		initializeLocalTheme()
-		router.push('/themes/local/edit')
-	}
-
-	const continueEditingLocalTheme = () => {
-		setIsNavigating(true)
 		router.push('/themes/local/edit')
 	}
 
@@ -110,41 +96,13 @@ export function CreateThemeButton({
 				)}
 			</Button>
 
-			<AlertDialog
+			<LocalThemeConfirmDialog
 				open={showConfirmDialog}
 				onOpenChange={setShowConfirmDialog}
-			>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Theme in Progress</AlertDialogTitle>
-						<AlertDialogDescription>
-							You already have a theme in progress. Would you like
-							to continue editing it or create a new one? Creating
-							a new theme will replace your current work.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<Button
-							variant="outline"
-							onClick={() => {
-								setShowConfirmDialog(false)
-								continueEditingLocalTheme()
-							}}
-						>
-							Continue Editing
-						</Button>
-						<AlertDialogAction
-							onClick={() => {
-								setShowConfirmDialog(false)
-								createNewLocalTheme()
-							}}
-						>
-							Create New
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+				onConfirm={createNewLocalTheme}
+				actionLabel="Create New"
+				description="You already have a theme in progress. Would you like to continue editing it or create a new one? Creating a new theme will replace your current work."
+			/>
 		</>
 	)
 }

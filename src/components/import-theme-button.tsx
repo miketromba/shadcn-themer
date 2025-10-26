@@ -10,16 +10,6 @@ import {
 	DialogTitle,
 	DialogTrigger
 } from '@/components/ui/dialog'
-import {
-	AlertDialog,
-	AlertDialogAction,
-	AlertDialogCancel,
-	AlertDialogContent,
-	AlertDialogDescription,
-	AlertDialogFooter,
-	AlertDialogHeader,
-	AlertDialogTitle
-} from '@/components/ui/alert-dialog'
 import { Textarea } from '@/components/ui/textarea'
 import { useCreateTheme } from '@/api/client/themes'
 import { useAuth } from '@/hooks/use-auth'
@@ -30,6 +20,7 @@ import { parseShadcnThemeFromCss } from '@/lib/shadcnTheme'
 import { toast } from 'sonner'
 import { hasLocalTheme, setLocalTheme } from '@/lib/localTheme'
 import { useRouter } from 'next/navigation'
+import { LocalThemeConfirmDialog } from '@/components/local-theme-confirm-dialog'
 
 interface ImportThemeButtonProps {
 	size?: 'default' | 'sm' | 'lg' | 'icon'
@@ -69,25 +60,21 @@ export function ImportThemeButton({
 	const [open, setOpen] = useState(false)
 	const [cssInput, setCssInput] = useState('')
 	const [showConfirmDialog, setShowConfirmDialog] = useState(false)
-	const [parsedThemeForConfirm, setParsedThemeForConfirm] = useState<ReturnType<typeof parseShadcnThemeFromCss> | null>(null)
+	const [parsedThemeForConfirm, setParsedThemeForConfirm] =
+		useState<ReturnType<typeof parseShadcnThemeFromCss> | null>(null)
 	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
 	const { user } = useAuth()
 	const router = useRouter()
 	const [isNavigating, setIsNavigating] = useState(false)
 
-	const importToLocal = (parsedTheme: ReturnType<typeof parseShadcnThemeFromCss>) => {
+	const importToLocal = (
+		parsedTheme: ReturnType<typeof parseShadcnThemeFromCss>
+	) => {
 		setIsNavigating(true)
 		setLocalTheme(parsedTheme, 'Imported Theme')
 		setOpen(false)
 		setCssInput('')
 		toast.success('Theme imported locally!')
-		router.push('/themes/local/edit')
-	}
-
-	const continueEditingLocalTheme = () => {
-		setIsNavigating(true)
-		setOpen(false)
-		setCssInput('')
 		router.push('/themes/local/edit')
 	}
 
@@ -99,7 +86,7 @@ export function ImportThemeButton({
 
 		try {
 			const parsedTheme = parseShadcnThemeFromCss(cssInput)
-			
+
 			if (!user) {
 				// For unauthenticated users, check if local theme exists
 				if (hasLocalTheme()) {
@@ -158,9 +145,9 @@ export function ImportThemeButton({
 					<DialogHeader>
 						<DialogTitle>Import Custom CSS</DialogTitle>
 						<DialogDescription>
-							Paste your CSS file below to customize the theme colors.
-							Make sure to include variables like --primary,
-							--background, etc.
+							Paste your CSS file below to customize the theme
+							colors. Make sure to include variables like
+							--primary, --background, etc.
 						</DialogDescription>
 					</DialogHeader>
 					<Textarea
@@ -192,40 +179,17 @@ export function ImportThemeButton({
 				</DialogContent>
 			</Dialog>
 
-			<AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
-				<AlertDialogContent>
-					<AlertDialogHeader>
-						<AlertDialogTitle>Theme in Progress</AlertDialogTitle>
-						<AlertDialogDescription>
-							You already have a theme in progress. Would you like to
-							continue editing it or import this theme? Importing will
-							replace your current work.
-						</AlertDialogDescription>
-					</AlertDialogHeader>
-					<AlertDialogFooter>
-						<AlertDialogCancel>Cancel</AlertDialogCancel>
-						<Button
-							variant="outline"
-							onClick={() => {
-								setShowConfirmDialog(false)
-								continueEditingLocalTheme()
-							}}
-						>
-							Continue Editing
-						</Button>
-						<AlertDialogAction
-							onClick={() => {
-								setShowConfirmDialog(false)
-								if (parsedThemeForConfirm) {
-									importToLocal(parsedThemeForConfirm)
-								}
-							}}
-						>
-							Import Theme
-						</AlertDialogAction>
-					</AlertDialogFooter>
-				</AlertDialogContent>
-			</AlertDialog>
+			<LocalThemeConfirmDialog
+				open={showConfirmDialog}
+				onOpenChange={setShowConfirmDialog}
+				onConfirm={() => {
+					if (parsedThemeForConfirm) {
+						importToLocal(parsedThemeForConfirm)
+					}
+				}}
+				actionLabel="Import Theme"
+				description="You already have a theme in progress. Would you like to continue editing it or import this theme? Importing will replace your current work."
+			/>
 		</>
 	)
 }
