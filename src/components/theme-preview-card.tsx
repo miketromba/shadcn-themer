@@ -2,10 +2,10 @@
 
 import * as React from 'react'
 import { StarToggle } from './theme-editor/star-toggle'
-import { useRouter } from 'next/navigation'
 import { ThemeScreenshot } from './theme-screenshot'
 import { useThemeData } from './providers/theme-data-provider'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 type ThemePreviewCardProps = {
 	id: string
@@ -24,23 +24,19 @@ export function ThemePreviewCard({
 	starCount,
 	isStarred
 }: ThemePreviewCardProps) {
-	const router = useRouter()
 	const { previewMode } = useThemeData()
+	const router = useRouter()
+
+	const handleUsernameClick = (e: React.MouseEvent) => {
+		e.stopPropagation()
+		e.preventDefault()
+		if (username) {
+			router.push(`/user/${username}`)
+		}
+	}
+
 	return (
-		<div
-			key={id}
-			role="button"
-			tabIndex={0}
-			aria-label={`Open ${name}`}
-			className="cursor-pointer"
-			onClick={() => router.push(`/themes/${id}`)}
-			onKeyDown={e => {
-				if (e.key === 'Enter' || e.key === ' ') {
-					e.preventDefault()
-					router.push(`/themes/${id}`)
-				}
-			}}
-		>
+		<Link key={id} href={`/themes/${id}`} className="block group">
 			<div>
 				<div className="w-full rounded-t-lg overflow-hidden border-t border-x">
 					<ThemeScreenshot
@@ -57,13 +53,12 @@ export function ThemePreviewCard({
 						{username && (
 							<div className="text-xs text-muted-foreground">
 								by{' '}
-								<Link
-									href={`/user/${username}`}
-									onClick={e => e.stopPropagation()}
-									className="hover:text-primary transition-colors hover:underline"
+								<button
+									onClick={handleUsernameClick}
+									className="hover:text-primary transition-colors cursor-pointer hover:underline"
 								>
 									{username}
-								</Link>
+								</button>
 							</div>
 						)}
 					</div>
@@ -73,10 +68,11 @@ export function ThemePreviewCard({
 						initialIsStarred={isStarred}
 						onClick={e => {
 							e.stopPropagation()
+							e.preventDefault()
 						}}
 					/>
 				</div>
 			</div>
-		</div>
+		</Link>
 	)
 }
