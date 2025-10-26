@@ -6,34 +6,51 @@ import { Button } from '../ui/button'
 import { Check, Pencil } from 'lucide-react'
 import { Spinner } from '../spinner'
 import { Skeleton } from '../ui/skeleton'
+import { getLocalTheme, setLocalThemeName } from '@/lib/localTheme'
 
 export function ThemeNameEditor() {
 	const { id } = useThemeData()
-	const { data, isLoading } = useTheme(id)
+	const isLocalMode = id === 'local'
+
+	const { data, isLoading } = useTheme(isLocalMode ? undefined : id)
 	const currentName = data?.theme.name
 	const updateMeta = useUpdateThemeMeta()
 	const [isEditingName, setIsEditingName] = useState(false)
 	const [localName, setLocalName] = useState<string>('')
 
+	// Load name from either API or localStorage
 	useEffect(() => {
-		if (typeof currentName === 'string') setLocalName(currentName)
-	}, [currentName])
+		if (isLocalMode) {
+			const localData = getLocalTheme()
+			setLocalName(localData?.name || 'Untitled Theme')
+		} else if (typeof currentName === 'string') {
+			setLocalName(currentName)
+		}
+	}, [currentName, isLocalMode])
 
 	function saveName() {
 		if (!id) return
-		const next = localName.trim() || 'Untitled theme'
-		if (next === currentName) {
+		const next = localName.trim() || 'Untitled Theme'
+
+		if (isLocalMode) {
+			// Save to localStorage for local themes
+			setLocalThemeName(next)
 			setIsEditingName(false)
-			return
+		} else {
+			// Save to server for remote themes
+			if (next === currentName) {
+				setIsEditingName(false)
+				return
+			}
+			updateMeta.mutate({
+				id,
+				body: { name: next }
+			})
+			setIsEditingName(false)
 		}
-		updateMeta.mutate({
-			id,
-			body: { name: next }
-		})
-		setIsEditingName(false)
 	}
 
-	if (isLoading) {
+	if (!isLocalMode && isLoading) {
 		return (
 			<div className="flex items-center gap-2 h-12">
 				<div className="text-sm font-semibold truncate flex-1">
@@ -42,6 +59,12 @@ export function ThemeNameEditor() {
 			</div>
 		)
 	}
+
+	const displayName = isLocalMode
+		? localName
+		: currentName && currentName.length > 0
+		? currentName
+		: 'Untitled Theme'
 
 	return (
 		<div className="flex items-center gap-1.5">
@@ -60,7 +83,7 @@ export function ThemeNameEditor() {
 						}}
 						onBlur={() => saveName()}
 					/>
-					{updateMeta.isPending ? (
+					{!isLocalMode && updateMeta.isPending ? (
 						<Spinner variant="secondary" />
 					) : (
 						<>
@@ -81,11 +104,9 @@ export function ThemeNameEditor() {
 						className="text-sm font-medium truncate flex-1 p-2 py-1.5 rounded-md border cursor-text"
 						onClick={() => setIsEditingName(true)}
 					>
-						{currentName && currentName.length > 0
-							? currentName
-							: 'Untitled theme'}
+						{displayName}
 					</div>
-					{updateMeta.isPending ? null : (
+					{!isLocalMode && updateMeta.isPending ? null : (
 						<Button
 							variant="ghost"
 							size="icon"
@@ -96,12 +117,12 @@ export function ThemeNameEditor() {
 							<Pencil className="size-4" />
 						</Button>
 					)}
-					{updateMeta.isPending ? (
+					{!isLocalMode && updateMeta.isPending ? (
 						<div className="p-2">
 							<Spinner variant="secondary" />
 						</div>
 					) : null}
-					{updateMeta.isError ? (
+					{!isLocalMode && updateMeta.isError ? (
 						<span
 							className="text-xs text-destructive"
 							role="status"

@@ -8,6 +8,7 @@ import {
 } from '@/lib/shadcnTheme'
 import { useTheme as useThemeQuery, useUpdateTheme } from '@/api/client/themes'
 import { EXAMPLE_IDS, type ExampleId } from '@/lib/colorExampleMapping'
+import { getLocalTheme, setLocalTheme } from '@/lib/localTheme'
 
 type FontType = 'font-sans' | 'font-serif' | 'font-mono'
 
@@ -62,11 +63,16 @@ export function ThemeDataProvider({
 	id?: string
 	initialPreviewMode?: 'light' | 'dark'
 }) {
-	const { data } = useThemeQuery(id)
+	const isLocalMode = id === 'local'
+
+	// Only query remote theme if not in local mode
+	const { data } = useThemeQuery(isLocalMode ? undefined : id)
 	const updateTheme = useUpdateTheme()
 
 	const remoteThemeJson = data?.theme.json
 
+	// Always initialize with null to avoid hydration mismatch
+	// We'll load from localStorage in an effect after mount
 	const [theme, setTheme] = React.useState<ShadcnTheme | null>(null)
 	const [previewMode, setPreviewMode] = React.useState<'light' | 'dark'>(
 		() => {
@@ -104,10 +110,20 @@ export function ThemeDataProvider({
 		} catch {}
 	}, [previewMode])
 
-	// Set initial theme on load
+	// Load local theme from localStorage on mount (client-only, after hydration)
 	React.useEffect(() => {
-		if (remoteThemeJson) setTheme(remoteThemeJson)
-	}, [remoteThemeJson])
+		if (isLocalMode) {
+			const localData = getLocalTheme()
+			setTheme(localData?.theme || getDefaultShadcnTheme())
+		}
+	}, [isLocalMode])
+
+	// Set initial theme on load for remote themes
+	React.useEffect(() => {
+		if (!isLocalMode && remoteThemeJson) {
+			setTheme(remoteThemeJson)
+		}
+	}, [isLocalMode, remoteThemeJson])
 
 	const updateVarDirect = React.useCallback(
 		(
@@ -202,12 +218,20 @@ export function ThemeDataProvider({
 	// Debounced auto-save when theme changes and id is present
 	React.useEffect(() => {
 		if (!id || !needsUpdate || !theme) return
+
 		const handle = setTimeout(() => {
-			updateTheme.mutate({ id, json: theme })
+			if (isLocalMode) {
+				// Save to localStorage for local themes
+				const localData = getLocalTheme()
+				setLocalTheme(theme, localData?.name)
+			} else {
+				// Save to server for remote themes
+				updateTheme.mutate({ id, json: theme })
+			}
 			setNeedsUpdate(false)
 		}, 500)
 		return () => clearTimeout(handle)
-	}, [id, needsUpdate, theme, updateTheme])
+	}, [id, needsUpdate, theme, updateTheme, isLocalMode])
 
 	return (
 		<ThemeDataContext.Provider value={ctx}>

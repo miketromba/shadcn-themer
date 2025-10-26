@@ -2,10 +2,22 @@
 
 import { Button } from '@/components/ui/button'
 import { useCreateTheme } from '@/api/client/themes'
-import { useAuthModal } from '@/components/providers/auth-modal-provider'
 import { useAuth } from '@/hooks/use-auth'
 import { Plus, Loader2 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useRouter } from 'next/navigation'
+import { initializeLocalTheme, hasLocalTheme } from '@/lib/localTheme'
+import { useState } from 'react'
+import {
+	AlertDialog,
+	AlertDialogAction,
+	AlertDialogCancel,
+	AlertDialogContent,
+	AlertDialogDescription,
+	AlertDialogFooter,
+	AlertDialogHeader,
+	AlertDialogTitle
+} from '@/components/ui/alert-dialog'
 
 interface CreateThemeButtonProps {
 	size?: 'default' | 'sm' | 'lg' | 'icon'
@@ -29,50 +41,110 @@ export function CreateThemeButton({
 	className
 }: CreateThemeButtonProps) {
 	const { mutate: createTheme, isPending: isCreating } = useCreateTheme()
-	const { openAuthModal } = useAuthModal()
 	const { user } = useAuth()
+	const router = useRouter()
+	const [isNavigating, setIsNavigating] = useState(false)
+	const [showConfirmDialog, setShowConfirmDialog] = useState(false)
+
+	const createNewLocalTheme = () => {
+		setIsNavigating(true)
+		initializeLocalTheme()
+		router.push('/themes/local/edit')
+	}
+
+	const continueEditingLocalTheme = () => {
+		setIsNavigating(true)
+		router.push('/themes/local/edit')
+	}
 
 	const handleClick = () => {
 		if (!user) {
-			openAuthModal('login')
+			// For unauthenticated users, check if local theme exists
+			if (hasLocalTheme()) {
+				// Show confirmation dialog
+				setShowConfirmDialog(true)
+			} else {
+				// Directly create a new local theme
+				createNewLocalTheme()
+			}
 			return
 		}
 		createTheme({})
 	}
 
+	const isPending = isCreating || isNavigating
+
 	return (
-		<Button
-			onClick={handleClick}
-			disabled={isCreating}
-			size={size}
-			variant={variant}
-			className={className}
-		>
-			{isCreating ? (
-				<>
-					<Loader2 className="size-4 animate-spin" />
-					<span
-						className={cn(
-							hideTextOnMobile && 'hidden sm:inline',
-							'ml-1'
-						)}
-					>
-						Creating...
-					</span>
-				</>
-			) : (
-				<>
-					{showIcon && <Plus className="size-4" />}
-					<span
-						className={cn(
-							hideTextOnMobile && 'hidden sm:inline',
-							showIcon && 'ml-1'
-						)}
-					>
-						New Theme
-					</span>
-				</>
-			)}
-		</Button>
+		<>
+			<Button
+				onClick={handleClick}
+				disabled={isPending}
+				size={size}
+				variant={variant}
+				className={className}
+			>
+				{isPending ? (
+					<>
+						<Loader2 className="size-4 animate-spin" />
+						<span
+							className={cn(
+								hideTextOnMobile && 'hidden sm:inline',
+								'ml-1'
+							)}
+						>
+							Creating...
+						</span>
+					</>
+				) : (
+					<>
+						{showIcon && <Plus className="size-4" />}
+						<span
+							className={cn(
+								hideTextOnMobile && 'hidden sm:inline',
+								showIcon && 'ml-1'
+							)}
+						>
+							New Theme
+						</span>
+					</>
+				)}
+			</Button>
+
+			<AlertDialog
+				open={showConfirmDialog}
+				onOpenChange={setShowConfirmDialog}
+			>
+				<AlertDialogContent>
+					<AlertDialogHeader>
+						<AlertDialogTitle>Theme in Progress</AlertDialogTitle>
+						<AlertDialogDescription>
+							You already have a theme in progress. Would you like
+							to continue editing it or create a new one? Creating
+							a new theme will replace your current work.
+						</AlertDialogDescription>
+					</AlertDialogHeader>
+					<AlertDialogFooter>
+						<AlertDialogCancel>Cancel</AlertDialogCancel>
+						<Button
+							variant="outline"
+							onClick={() => {
+								setShowConfirmDialog(false)
+								continueEditingLocalTheme()
+							}}
+						>
+							Continue Editing
+						</Button>
+						<AlertDialogAction
+							onClick={() => {
+								setShowConfirmDialog(false)
+								createNewLocalTheme()
+							}}
+						>
+							Create New
+						</AlertDialogAction>
+					</AlertDialogFooter>
+				</AlertDialogContent>
+			</AlertDialog>
+		</>
 	)
 }

@@ -32,8 +32,13 @@ export function CodeExportModal({
 	const [selectedTab, setSelectedTab] = useState('pnpm')
 	const cssCode = generateThemeCSS(theme)
 
+	// Local themes don't have a server route, so we can't show CLI install
+	const isLocalTheme = themeId === 'local'
+	const canUseCLI = themeId && !isLocalTheme
+
 	const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-	const themeUrl = themeId ? `${baseUrl}/r/themes/${themeId}.json` : ''
+	const themeUrl =
+		themeId && !isLocalTheme ? `${baseUrl}/r/themes/${themeId}.json` : ''
 
 	const installCommands = {
 		pnpm: `pnpm dlx shadcn@latest add ${themeUrl}`,
@@ -72,12 +77,16 @@ export function CodeExportModal({
 						Export Theme Code
 					</DialogTitle>
 					<DialogDescription className="text-base">
-						Install via CLI or copy the CSS code manually.
+						{canUseCLI
+							? 'Install via CLI or copy the CSS code manually.'
+							: isLocalTheme
+							? 'Copy the CSS code to use in your project. Save to your account to enable CLI installation.'
+							: 'Copy the CSS code to use in your project.'}
 					</DialogDescription>
 				</DialogHeader>
 
-				{/* Install Command Tabs */}
-				{themeId && (
+				{/* Install Command Tabs - only show for persisted themes */}
+				{canUseCLI && (
 					<div className="mx-6 mb-4 rounded-lg border bg-card overflow-hidden">
 						<Tabs
 							value={selectedTab}

@@ -54,6 +54,7 @@ export async function updateSession(request: NextRequest) {
 		pathname === '/' ||
 		pathname.startsWith('/auth') ||
 		pathname.startsWith('/login') ||
+		pathname === '/themes/local/edit' || // Allow local theme editing without auth
 		(pathname.startsWith('/themes/') && !pathname.includes('/edit')) || // Public theme view, but not edit
 		pathname.startsWith('/user/') || // Public user profile/themes pages
 		pathname === '/terms' ||

@@ -3,6 +3,7 @@ import ExamplesSwitcher from '@/components/examples'
 import { DeleteThemeDialog } from '@/components/theme-editor/delete-theme-dialog'
 import { StarToggle } from '@/components/theme-editor/star-toggle'
 import { CodeExportButton } from '@/components/theme-editor/code-export-button'
+import { SaveToAccountButton } from '@/components/theme-editor/save-to-account-button'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { Save } from 'lucide-react'
@@ -22,21 +23,30 @@ export default async function ThemePage({
 	params: Promise<{ id: string }>
 }) {
 	const { id } = await params
+	const isLocalTheme = id === 'local'
 
 	return (
 		<div className="px-6 py-3 h-screen overflow-auto">
 			<ExamplesSwitcher
 				rightChildren={
 					<div className="flex items-center gap-1.5">
-						<StarToggle id={id} variant="outline" />
-						<DeleteThemeDialog id={id} />
+						{!isLocalTheme && (
+							<>
+								<StarToggle id={id} variant="outline" />
+								<DeleteThemeDialog id={id} />
+							</>
+						)}
 						<CodeExportButton />
-						<Button asChild variant="outline" size="sm">
-							<Link href={`/themes/${id}`}>
-								<Save className="size-4 mr-1" />
-								Save
-							</Link>
-						</Button>
+						{isLocalTheme ? (
+							<SaveToAccountButton />
+						) : (
+							<Button asChild variant="outline" size="sm">
+								<Link href={`/themes/${id}`}>
+									<Save className="size-4 mr-1" />
+									Save
+								</Link>
+							</Button>
+						)}
 					</div>
 				}
 			/>
