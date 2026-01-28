@@ -11,7 +11,9 @@ if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
 const nextConfig: NextConfig = {
 	images: {
 		domains: imageDomains
-	}
+	},
+	// Transpile the screenshot service package (ships raw TypeScript)
+	transpilePackages: ['@miketromba/screenshot-service']
 }
 
 export default nextConfig
