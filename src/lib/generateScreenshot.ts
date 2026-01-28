@@ -60,7 +60,7 @@ export async function generateScreenshot(
 		`${process.env.SCREENSHOT_SERVICE_URL}/screenshot?${screenshotParams}`,
 		{
 			headers: {
-				Authorization: `Bearer ${process.env.SCREENSHOT_SERVICE_AUTH_TOKEN}`
+				Authorization: `Bearer ${process.env.SCREENSHOT_AUTH_TOKEN}`
 			}
 		}
 	)
