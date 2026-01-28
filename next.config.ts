@@ -11,7 +11,9 @@ if (process.env.NEXT_PUBLIC_SUPABASE_URL) {
 const nextConfig: NextConfig = {
 	images: {
 		domains: imageDomains
-	}
+	},
+	// Test: force Next.js to re-bundle the screenshot service
+	transpilePackages: ['@miketromba/screenshot-service']
 }
 
 export default nextConfig

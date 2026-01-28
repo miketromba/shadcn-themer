@@ -30,9 +30,7 @@ export async function generateScreenshot(
 	demo?: string,
 	mode?: 'light' | 'dark'
 ): Promise<Buffer> {
-	const webAppUrl = process.env.WEB_APP_URL?.includes('localhost')
-		? process.env.WEB_APP_URL.replace('localhost', 'host.docker.internal')
-		: process.env.WEB_APP_URL
+	const webAppUrl = process.env.WEB_APP_URL || ''
 
 	const previewUrl = `${webAppUrl}${generatePreviewUrl({
 		themeId,
