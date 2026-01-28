@@ -13,8 +13,7 @@
     "db:migrate": "drizzle-kit migrate --config=./src/db/drizzle.config.ts",
     "db:studio": "drizzle-kit studio --config=./src/db/drizzle.config.ts",
     "db:seed": "tsx --env-file=.env src/scripts/seed-db.ts",
-    "init-screenshot-service": "sh -c 'if [ \"$NODE_ENV\" != \"production\" ]; then if [ ! -d .screenshot-service ]; then git clone https://github.com/miketromba/screenshot-service.git .screenshot-service; fi && cd .screenshot-service && pnpm docker:build; fi'",
-    "ss:dev": "docker run --rm -it --add-host=host.docker.internal:host-gateway -p 3006:3000 -e NODE_ENV=development -e AUTH_TOKEN=dev-token -e HOST_WHITELIST=host.docker.internal screenshot-service"
+    "ss:dev": "SCREENSHOT_AUTH_TOKEN=dev-token SCREENSHOT_HOST_WHITELIST=localhost bunx @miketromba/screenshot-service --port 3006"
   },
   "dependencies": {
     "@ai-sdk/google": "^2.0.12",
@@ -25,6 +24,7 @@
     "@google/genai": "^1.17.0",
     "@hono/zod-validator": "^0.7.2",
     "@hookform/resolvers": "^5.2.1",
+    "@miketromba/screenshot-service": "^0.2.0",
     "@next/third-parties": "^15.5.4",
     "@radix-ui/react-accordion": "^1.2.12",
     "@radix-ui/react-alert-dialog": "^1.1.15",
