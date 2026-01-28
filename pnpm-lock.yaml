@@ -33,8 +33,8 @@ importers:
         specifier: ^5.2.1
         version: 5.2.1(react-hook-form@7.62.0(react@19.1.1))
       '@miketromba/screenshot-service':
-        specifier: ^0.2.1
-        version: 0.2.1(typescript@5.9.2)
+        specifier: ^0.2.2
+        version: 0.2.2(typescript@5.9.2)
       '@next/third-parties':
         specifier: ^15.5.4
         version: 15.5.4(next@15.5.7(@opentelemetry/api@1.9.0)(react-dom@19.1.1(react@19.1.1))(react@19.1.1))(react@19.1.1)
@@ -881,8 +881,8 @@ packages:
   '@jridgewell/trace-mapping@0.3.30':
     resolution: {integrity: sha512-GQ7Nw5G2lTu/BtHTKfXhKHok2WGetd4XYcVKGx00SjAk8GMwgJM3zr6zORiPGuOE+/vkc90KtTosSSvaCjKb2Q==}
 
-  '@miketromba/screenshot-service@0.2.1':
-    resolution: {integrity: sha512-UbVCAw9h+qpFRMA+E8YkLDA82jTfuvIKksBAJg2TbrViH0R8qtxBo9zrqM1CbsKRB29WQZInfFsqXR2kymORWQ==}
+  '@miketromba/screenshot-service@0.2.2':
+    resolution: {integrity: sha512-qYGtJoe6ctS0Uh00+2DegB0hMv+nBPg0syRSEOGbsvSi4iodBakB8o4NiZQmRcy00rE0TCrPWHB4RcfB/Vya9A==}
     hasBin: true
 
   '@napi-rs/wasm-runtime@0.2.12':
@@ -1591,9 +1591,9 @@ packages:
   '@rushstack/eslint-patch@1.12.0':
     resolution: {integrity: sha512-5EwMtOqvJMMa3HbmxLlF74e+3/HhwBTMcvt3nqVJgGCozO6hzIPOBlwm8mGVNR9SN2IJpxSnlxczyDjcn7qIyw==}
 
-  '@sparticuz/chromium@143.0.4':
-    resolution: {integrity: sha512-/6I7uQTRhRDD2/gGPQ1Gkf+Dqk0RYDACPJDZfSzz0OWk4JmUTonNHPXbrn6UIklOHlnDLf8xAAzkOZKB/cJpLA==}
-    engines: {node: '>=20.11.0'}
+  '@sparticuz/chromium-min@133.0.0':
+    resolution: {integrity: sha512-7obk2CRitrlyxT4AKsCjSfE0QiHjDbi5GeOJirkerAZFV7o4VAsKzqoTQ/6rm3segZwfNFZzy8EdDelfV08aag==}
+    engines: {node: '>= 16'}
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
@@ -4471,10 +4471,10 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
 
-  '@miketromba/screenshot-service@0.2.1(typescript@5.9.2)':
+  '@miketromba/screenshot-service@0.2.2(typescript@5.9.2)':
     dependencies:
       '@hono/zod-validator': 0.4.3(hono@4.9.6)(zod@3.25.76)
-      '@sparticuz/chromium': 143.0.4
+      '@sparticuz/chromium-min': 133.0.0
       hono: 4.9.6
       puppeteer-core: 24.36.1
       zod: 3.25.76
@@ -5222,7 +5222,7 @@ snapshots:
 
   '@rushstack/eslint-patch@1.12.0': {}
 
-  '@sparticuz/chromium@143.0.4':
+  '@sparticuz/chromium-min@133.0.0':
     dependencies:
       follow-redirects: 1.15.11
       tar-fs: 3.1.1
