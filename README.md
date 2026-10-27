@@ -31,8 +31,8 @@ Shadcn Themer is a web application that allows you to create, customize, and sha
 - **Styling:** [Tailwind CSS 4](https://tailwindcss.com/)
 - **UI Components:** [shadcn/ui](https://ui.shadcn.com/)
 - **Database:** [PostgreSQL](https://www.postgresql.org/) with [Drizzle ORM](https://orm.drizzle.team/)
-- **Authentication:** [Supabase Auth](https://supabase.com/auth)
-- **Storage:** [Supabase Storage](https://supabase.com/storage)
+- **Authentication:** [Supabase Auth](https://supabase.com/auth) (self-hosted GoTrue)
+- **Storage:** S3-compatible bucket
 - **API:** [Hono](https://hono.dev/) with RPC pattern
 - **State Management:** [TanStack Query](https://tanstack.com/query)
 - **Color Handling:** [Color.js](https://colorjs.io/)

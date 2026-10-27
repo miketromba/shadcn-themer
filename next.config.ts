@@ -12,8 +12,18 @@ const nextConfig: NextConfig = {
 	images: {
 		domains: imageDomains
 	},
-	// Test: force Next.js to re-bundle the screenshot service
-	transpilePackages: ['@miketromba/screenshot-service']
+	// Supabase Auth (GoTrue) runs as its own private service; supabase-js
+	// reaches it at this origin's /auth/v1, as it would on hosted Supabase.
+	async rewrites() {
+		const authUpstream = process.env.SUPABASE_AUTH_UPSTREAM_URL
+		if (!authUpstream) return []
+		return [
+			{
+				source: '/auth/v1/:path*',
+				destination: `${authUpstream}/:path*`
+			}
+		]
+	}
 }
 
 export default nextConfig

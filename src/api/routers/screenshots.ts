@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
 import { z } from 'zod'
 import { zValidator } from '@hono/zod-validator'
+import sharp from 'sharp'
 import { db, schema, eq } from '@/db'
-import { createServiceClient } from '@/lib/supabase/admin'
+import { getFile, putFile } from '@/lib/storage'
 import {
 	generateScreenshot,
 	SCREENSHOT_ASPECT_RATIO
@@ -51,30 +52,24 @@ export const screenshotsRouter = new Hono().get(
 			// 2) Stable storage path per theme id, demo, and mode (overwrite on update)
 			const storagePath = `screenshots/themes/${theme.id}/${demo}-${mode}.webp`
 
-			const supabase = createServiceClient()
-
 			// 3) Check if screenshot needs regeneration
 			const needsRegeneration = theme.screenshotVersion < theme.version
 
 			// 4) Try to return existing if up-to-date
 			if (!needsRegeneration) {
-				const transformOptions = width
-					? {
-							transform: {
-								width,
-								height: Math.round(
-									width / SCREENSHOT_ASPECT_RATIO
-								)
-							}
-					  }
-					: {}
-
-				const { data: existing } = await supabase.storage
-					.from('public-files')
-					.download(storagePath, transformOptions)
+				const existing = await getFile(storagePath)
 
 				if (existing) {
-					return new Response(existing, {
+					const body = width
+						? await sharp(existing)
+								.resize(
+									width,
+									Math.round(width / SCREENSHOT_ASPECT_RATIO)
+								)
+								.webp({ quality: 80 })
+								.toBuffer()
+						: existing
+					return new Response(new Uint8Array(body), {
 						headers: {
 							'Content-Type': 'image/webp',
 							'Cache-Control': `public, max-age=${MAX_AGE}`
@@ -86,16 +81,10 @@ export const screenshotsRouter = new Hono().get(
 			// 5) Generate and upload (overwrite)
 			const imageBuffer = await generateScreenshot(theme.id, demo, mode)
 
-			const { error: uploadError } = await supabase.storage
-				.from('public-files')
-				.upload(storagePath, imageBuffer, {
-					contentType: 'image/webp',
-					cacheControl: `${MAX_AGE}`,
-					upsert: true
-				})
-			if (uploadError) {
-				throw new Error(`Upload failed: ${uploadError.message}`)
-			}
+			await putFile(storagePath, imageBuffer, {
+				contentType: 'image/webp',
+				cacheControl: `max-age=${MAX_AGE}`
+			})
 
 			// 6) Update screenshot_version to match current version
 			await db

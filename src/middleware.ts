@@ -4,10 +4,11 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
 	const pathname = request.nextUrl.pathname
 	// Skip auth middleware for API routes, preview/screenshot routes, registry routes,
-	// and public assets (sitemap, robots.txt, etc.)
+	// the auth server's own routes, and public assets (sitemap, robots.txt, etc.)
 	// API routes handle their own auth, preview and registry routes are public
 	if (
 		pathname.startsWith('/api/') ||
+		pathname.startsWith('/auth/v1/') ||
 		pathname.startsWith('/preview/') ||
 		pathname.startsWith('/r/') ||
 		pathname === '/sitemap.xml' ||
